@@ -1,0 +1,1014 @@
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+   数据管理系统
+  </title>
+  <script src="https://res.gemcoder.com/js/reload.js">
+  </script>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>tailwind.config = {
+  theme: {
+    extend: {
+colors: {
+        primary: '#165DFF',
+        secondary: '#0FC6C2',
+        accent: '#722ED1',
+        dark: '#0F172A',
+        'dark-light': '#1E293B',
+        'dark-medium': '#334155',
+        'gray-custom': '#94A3B8',
+        'light-gray': '#E2E8F0'
+      },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif']
+      },
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem'
+      },
+      boxShadow: {
+        'glow': '0 0 15px rgba(22, 93, 255, 0.5)',
+        'glow-lg': '0 0 25px rgba(22, 93, 255, 0.7)'
+      }
+    }
+  }
+};</script>
+  <style type="text/tailwindcss">@layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 0 8px rgba(22, 93, 255, 0.5);
+            }
+            .bg-grid {
+                background-image: radial-gradient(rgba(22, 93, 255, 0.1) 1px, transparent 1px);
+                background-size: 20px 20px;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+            }
+            .sidebar-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300;
+            }
+            .sidebar-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .sidebar-item:not(.active):hover {
+                @apply bg-dark-light;
+            }
+            .stat-card {
+                @apply bg-dark-light rounded-xl p-5 card-hover border border-primary/20;
+            }
+            .stat-value {
+                @apply text-3xl md:text-4xl font-bold text-white mt-2;
+            }
+            .stat-label {
+                @apply text-gray-custom text-sm uppercase tracking-wider;
+            }
+            .stat-icon {
+                @apply w-10 h-10 rounded-lg flex items-center justify-center;
+            }
+            .status-indicator {
+                @apply w-3 h-3 rounded-full inline-block mr-2;
+            }
+            .status-online {
+                @apply bg-green-500 animate-pulse;
+            }
+            .status-offline {
+                @apply bg-red-500;
+            }
+            .status-warning {
+                @apply bg-yellow-500;
+            }
+        }</style>
+ </head>
+<body class="bg-dark text-white font-inter min-h-screen flex flex-col">
+  <!-- [MODULE] 7a3_页面整体布局 -->
+  <div class="flex flex-col h-screen overflow-hidden">
+   <!-- [MODULE] 2b9_顶部导航栏 -->
+<header class="bg-dark-light border-b border-dark-medium py-3 px-4 flex items-center justify-between z-10">
+    <div class="flex items-center gap-4">
+     <button class="lg:hidden text-light-100 p-2 rounded-md hover:bg-dark-700 transition-colors" id="sidebar-toggle">
+      <i class="fas fa-bars">
+      </i>
+     </button>
+     <div class="flex items-center gap-2">
+      <i class="fas fa-database text-primary text-xl">
+      </i>
+      <h1 class="text-xl font-semibold">
+       数据管理系统
+      </h1>
+     </div>
+    </div>
+    <div class="flex items-center gap-4">
+     <div class="relative">
+      <button class="text-light-100 p-2 rounded-md hover:bg-dark-700 transition-colors relative">
+       <i class="fas fa-bell">
+       </i>
+       <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full">
+       </span>
+      </button>
+     </div>
+     <div class="flex items-center gap-3">
+      <img alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-dark-600" src="https://design.gemcoder.com/api/searchImage?query=user avatar, dark background, minimal style&amp;width=40&amp;height=40">
+      <span class="hidden md:inline-block text-sm">
+       管理员
+      </span>
+      <i class="fas fa-chevron-down text-xs text-light-300">
+      </i>
+     </div>
+    </div>
+   </header>
+   <!-- [/MODULE] 2b9_顶部导航栏 -- 包含系统标题、通知按钮和用户信息 -->
+   <div class="flex flex-1 overflow-hidden">
+    <!-- [MODULE] 5c7_左侧导航栏 -->
+<aside class="bg-dark-light border-r border-dark-medium w-64 flex-shrink-0 hidden lg:block transition-all duration-300 transform z-20 overflow-y-auto scrollbar-hide h-[calc(100%-64px)]" data-ytextravalue="extra-lvilyojb7" id="sidebar">
+     <nav class="py-4 h-full flex flex-col" data-ytindex="0" data-ytoriginindex="0" data-ytparentvalue="extra-lvilyojb7">
+      <div class="px-4 mb-6">
+       <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 px-4">
+        主菜单
+       </p>
+       <a class="sidebar-item active" href="javascript:void(0);">
+        <i class="fas fa-tachometer-alt w-5 text-center">
+        </i>
+        <span>
+         后台主页
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-database w-5 text-center">
+        </i>
+        <span>
+         采集管理
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-spider w-5 text-center">
+        </i>
+        <span>
+         爬虫管理
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-table w-5 text-center">
+        </i>
+        <span>
+         数据管理
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-search-plus w-5 text-center">
+        </i>
+        <span>
+         深采管理
+        </span>
+       </a>
+      </div>
+      <div class="px-4 mb-6">
+       <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4">
+        AI功能
+       </p>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-cogs w-5 text-center">
+        </i>
+        <span>
+         AI模型管理
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-file-alt w-5 text-center">
+        </i>
+        <span>
+         AI分析与报告
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-chart-line w-5 text-center">
+        </i>
+        <span>
+         AI数智大屏
+        </span>
+       </a>
+      </div>
+      <div class="px-4 mb-6 mt-auto">
+       <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4">
+        系统
+       </p>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-cog w-5 text-center">
+        </i>
+        <span>
+         系统设置
+        </span>
+       </a>
+       <a class="sidebar-item" href="javascript:void(0);">
+        <i class="fas fa-user-circle w-5 text-center">
+        </i>
+        <span>
+         用户中心
+        </span>
+       </a>
+      </div>
+     </nav>
+    </aside>
+    <!-- [/MODULE] 5c7_左侧导航栏 -- 包含主菜单和系统菜单，当前选中数据管理 -->
+    <!-- [MODULE] a8d_主内容区域 -->
+<main class="flex-1 overflow-y-auto bg-dark p-6">
+     <!-- [MODULE] 3e2_数据管理页面 -->
+     <div id="data-management-page">
+      <!-- [MODULE] 6f1_数据管理页面:页面标题 -->
+      <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+       <div>
+        <h2 class="text-2xl font-semibold">
+         数据管理
+        </h2>
+        <p class="text-dark-500 text-sm mt-1">
+         管理已采集保存的数据
+        </p>
+       </div>
+       <div class="flex flex-wrap gap-3">
+        <button class="btn-primary" id="btn-add-data">
+         <i class="fas fa-plus">
+         </i>
+         <span>
+          新增数据
+         </span>
+        </button>
+        <button class="btn-outline" id="btn-refresh">
+         <i class="fas fa-sync-alt">
+         </i>
+         <span>
+          刷新
+         </span>
+        </button>
+       </div>
+      </div>
+      <!-- [/MODULE] 6f1_数据管理页面:页面标题 -- 包含页面标题、描述和操作按钮(新增数据、刷新) -->
+      <!-- [MODULE] 9d4_数据管理页面:搜索区域 -->
+      <div class="bg-dark-800 rounded-lg border border-dark-700 p-4 mb-6">
+       <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+         <label class="block text-sm text-dark-500 mb-1">
+          关键词搜索
+         </label>
+         <div class="relative">
+          <input class="input-dark w-full pl-10" id="search-input" placeholder="请输入关键词进行模糊查询..." type="text">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-dark-500">
+          </i>
+         </div>
+        </div>
+        <div class="w-full md:w-48">
+         <label class="block text-sm text-dark-500 mb-1">
+          数据类型
+         </label>
+         <select class="input-dark w-full">
+          <option value="">
+           全部类型
+          </option>
+          <option value="type1">
+           类型一
+          </option>
+          <option value="type2">
+           类型二
+          </option>
+          <option value="type3">
+           类型三
+          </option>
+         </select>
+        </div>
+        <div class="w-full md:w-48">
+         <label class="block text-sm text-dark-500 mb-1">
+          采集状态
+         </label>
+         <select class="input-dark w-full">
+          <option value="">
+           全部状态
+          </option>
+          <option value="completed">
+           已完成
+          </option>
+          <option value="pending">
+           待处理
+          </option>
+          <option value="failed">
+           已失败
+          </option>
+         </select>
+        </div>
+        <div class="flex items-end">
+         <button class="btn-primary w-full md:w-auto" id="btn-search">
+          <i class="fas fa-search">
+          </i>
+          <span>
+           搜索
+          </span>
+         </button>
+        </div>
+       </div>
+      </div>
+      <!-- [/MODULE] 9d4_数据管理页面:搜索区域 -- 包含关键词搜索框、数据类型下拉框、采集状态下拉框和搜索按钮 -->
+      <!-- [MODULE] 2g5_数据管理页面:批量操作区域 -->
+      <div class="bg-dark-800 rounded-lg border border-dark-700 p-4 mb-6">
+       <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+         <div class="flex items-center">
+          <input class="rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" id="select-all" type="checkbox">
+          <label class="ml-2 text-sm" for="select-all">
+           全选
+          </label>
+         </div>
+         <span class="text-sm text-dark-500" id="selected-count">
+          已选择 0 条数据
+         </span>
+        </div>
+        <div class="flex flex-wrap gap-3">
+         <button class="btn-danger" disabled="" id="btn-batch-delete">
+          <i class="fas fa-trash-alt">
+          </i>
+          <span>
+           批量删除
+          </span>
+         </button>
+         <button class="btn-primary" disabled="" id="btn-batch-ai">
+          <i class="fas fa-robot">
+          </i>
+          <span>
+           批量AI深度采集
+          </span>
+         </button>
+        </div>
+       </div>
+      </div>
+      <!-- [/MODULE] 2g5_数据管理页面:批量操作区域 -- 包含全选复选框、已选择数据计数和批量操作按钮(批量删除、批量AI深度采集) -->
+      <!-- [MODULE] 4h7_数据管理页面:数据表格 -->
+      <div class="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden mb-6">
+       <div class="overflow-x-auto">
+        <table class="w-full">
+         <thead>
+          <tr class="bg-dark-800 border-b border-dark-700">
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider w-12">
+            <input class="rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" id="table-select-all" type="checkbox">
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            ID
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            数据名称
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            数据类型
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            采集时间
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            状态
+           </th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider">
+            操作
+           </th>
+          </tr>
+         </thead>
+         <tbody id="data-table-body">
+          <!-- 表格数据行 -->
+          <tr class="border-b border-dark-700 table-hover-row">
+           <td class="px-4 py-4">
+            <input class="data-checkbox rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" type="checkbox">
+           </td>
+           <td class="px-4 py-4 text-sm">
+            #D-001
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-3">
+             <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40">
+             <span>
+              企业客户信息表
+             </span>
+            </div>
+           </td>
+           <td class="px-4 py-4 text-sm">
+            结构化数据
+           </td>
+           <td class="px-4 py-4 text-sm text-dark-500">
+            2023-10-15 09:30
+           </td>
+           <td class="px-4 py-4">
+            <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400 border border-green-900/50">
+             已完成
+            </span>
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+             <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+              <i class="fas fa-eye">
+              </i>
+             </button>
+             <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+              <i class="fas fa-edit">
+              </i>
+             </button>
+             <button class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors btn-ai-collect" title="AI深度采集">
+              <i class="fas fa-robot">
+              </i>
+             </button>
+             <button class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors btn-delete" title="删除">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+            </div>
+           </td>
+          </tr>
+          <tr class="border-b border-dark-700 table-hover-row">
+           <td class="px-4 py-4">
+            <input class="data-checkbox rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" type="checkbox">
+           </td>
+           <td class="px-4 py-4 text-sm">
+            #D-002
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-3">
+             <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40">
+             <span>
+              产品销售统计
+             </span>
+            </div>
+           </td>
+           <td class="px-4 py-4 text-sm">
+            统计数据
+           </td>
+           <td class="px-4 py-4 text-sm text-dark-500">
+            2023-10-14 15:20
+           </td>
+           <td class="px-4 py-4">
+            <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400 border border-green-900/50">
+             已完成
+            </span>
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+             <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+              <i class="fas fa-eye">
+              </i>
+             </button>
+             <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+              <i class="fas fa-edit">
+              </i>
+             </button>
+             <button class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors btn-ai-collect" title="AI深度采集">
+              <i class="fas fa-robot">
+              </i>
+             </button>
+             <button class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors btn-delete" title="删除">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+            </div>
+           </td>
+          </tr>
+          <tr class="border-b border-dark-700 table-hover-row">
+           <td class="px-4 py-4">
+            <input class="data-checkbox rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" type="checkbox">
+           </td>
+           <td class="px-4 py-4 text-sm">
+            #D-003
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-3">
+             <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40">
+             <span>
+              用户行为日志
+             </span>
+            </div>
+           </td>
+           <td class="px-4 py-4 text-sm">
+            日志数据
+           </td>
+           <td class="px-4 py-4 text-sm text-dark-500">
+            2023-10-13 16:45
+           </td>
+           <td class="px-4 py-4">
+            <span class="px-2 py-1 text-xs rounded-full bg-yellow-900/30 text-yellow-400 border border-yellow-900/50">
+             处理中
+            </span>
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+             <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+              <i class="fas fa-eye">
+              </i>
+             </button>
+             <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+              <i class="fas fa-edit">
+              </i>
+             </button>
+             <button class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors btn-ai-collect" title="AI深度采集">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+             <button class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors btn-delete" title="删除">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+            </div>
+           </td>
+          </tr>
+          <tr class="border-b border-dark-700 table-hover-row">
+           <td class="px-4 py-4">
+            <input class="data-checkbox rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" type="checkbox">
+           </td>
+           <td class="px-4 py-4 text-sm">
+            #D-004
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-3">
+             <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40">
+             <span>
+              市场调研报告
+             </span>
+            </div>
+           </td>
+           <td class="px-4 py-4 text-sm">
+            文档数据
+           </td>
+           <td class="px-4 py-4 text-sm text-dark-500">
+            2023-10-12 11:20
+           </td>
+           <td class="px-4 py-4">
+            <span class="px-2 py-1 text-xs rounded-full bg-red-900/30 text-red-400 border border-red-900/50">
+             已失败
+            </span>
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+             <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+              <i class="fas fa-eye">
+              </i>
+             </button>
+             <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+              <i class="fas fa-edit">
+              </i>
+             </button>
+             <button class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors btn-ai-collect" title="AI深度采集">
+              <i class="fas fa-robot">
+              </i>
+             </button>
+             <button class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors btn-delete" title="删除">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+            </div>
+           </td>
+          </tr>
+          <tr class="border-b border-dark-700 table-hover-row">
+           <td class="px-4 py-4">
+            <input class="data-checkbox rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-600" type="checkbox">
+           </td>
+           <td class="px-4 py-4 text-sm">
+            #D-005
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-3">
+             <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40">
+             <span>
+              财务报表数据
+             </span>
+            </div>
+           </td>
+           <td class="px-4 py-4 text-sm">
+            结构化数据
+           </td>
+           <td class="px-4 py-4 text-sm text-dark-500">
+            2023-10-10 14:10
+           </td>
+           <td class="px-4 py-4">
+            <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400 border border-green-900/50">
+             已完成
+            </span>
+           </td>
+           <td class="px-4 py-4">
+            <div class="flex items-center gap-2">
+             <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+              <i class="fas fa-eye">
+              </i>
+             </button>
+             <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+              <i class="fas fa-edit">
+              </i>
+             </button>
+             <button class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors btn-ai-collect" title="AI深度采集">
+              <i class="fas fa-robot">
+              </i>
+             </button>
+             <button class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors btn-delete" title="删除">
+              <i class="fas fa-trash-alt">
+              </i>
+             </button>
+            </div>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+       <!-- [MODULE] 8j2_数据管理页面:分页区域 -->
+       <div class="px-4 py-3 flex items-center justify-between border-t border-dark-700">
+        <div class="text-sm text-dark-500">
+         显示
+         <span id="page-range">
+          1-5
+         </span>
+         条，共
+         <span id="total-items">
+          24
+         </span>
+         条数据
+        </div>
+        <div class="flex items-center gap-2">
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 text-dark-500 hover:border-dark-600 hover:text-light-300 transition-colors" disabled="">
+          <i class="fas fa-chevron-left text-xs">
+          </i>
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white">
+          1
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 hover:border-dark-600 transition-colors">
+          2
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 hover:border-dark-600 transition-colors">
+          3
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 hover:border-dark-600 transition-colors">
+          4
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 hover:border-dark-600 transition-colors">
+          5
+         </button>
+         <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-700 hover:border-dark-600 transition-colors">
+          <i class="fas fa-chevron-right text-xs">
+          </i>
+         </button>
+        </div>
+       </div>
+       <!-- [/MODULE] 8j2_数据管理页面:分页区域 -- 包含数据显示范围、总数和分页控制按钮 -->
+      </div>
+      <!-- [/MODULE] 4h7_数据管理页面:数据表格 -- 包含数据列表和分页控件 -->
+     </div>
+     <!-- [/MODULE] 3e2_数据管理页面 -- 管理已采集保存的数据，支持搜索、分页和操作功能 -->
+    </main>
+    <!-- [/MODULE] a8d_主内容区域 -- 包含数据管理页面的所有内容 -->
+   </div>
+  </div>
+  <!-- [/MODULE] 7a3_页面整体布局 -- 包含顶部导航栏、左侧导航栏和主内容区域 -->
+  <!-- [MODULE] 1k3_删除确认弹窗 -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="delete-modal">
+<div class="bg-dark-light border border-dark-medium rounded-lg w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+    <div class="p-5 border-b border-dark-700">
+     <h3 class="text-lg font-medium">
+      确认删除
+     </h3>
+    </div>
+    <div class="p-5">
+     <div class="flex items-start gap-3 mb-4">
+      <div class="text-amber-400 mt-1">
+       <i class="fas fa-exclamation-triangle text-xl">
+       </i>
+      </div>
+      <div>
+       <p class="text-sm">
+        您确定要删除选中的数据吗？此操作不可撤销，删除后将无法恢复。
+       </p>
+       <p class="text-xs text-dark-500 mt-2" id="delete-item-name">
+        数据名称:
+        <span class="text-light-100">
+         企业客户信息表
+        </span>
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="p-4 bg-dark-900/50 rounded-b-lg flex justify-end gap-3">
+     <button class="btn-outline" id="cancel-delete">
+      取消
+     </button>
+     <button class="btn-danger" id="confirm-delete">
+      确认删除
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- [/MODULE] 1k3_删除确认弹窗 -- 用于确认删除操作，包含取消和确认删除按钮 -->
+  <!-- [MODULE] 2l4_AI深度采集确认弹窗 -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="ai-collect-modal">
+<div class="bg-dark-light border border-dark-medium rounded-lg w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="ai-modal-content">
+    <div class="p-5 border-b border-dark-700">
+     <h3 class="text-lg font-medium">
+      AI深度采集
+     </h3>
+    </div>
+    <div class="p-5">
+     <div class="flex items-start gap-3 mb-4">
+      <div class="text-blue-400 mt-1">
+       <i class="fas fa-robot text-xl">
+       </i>
+      </div>
+      <div>
+       <p class="text-sm">
+        系统将对选中的数据进行AI深度采集，可能需要几分钟时间。
+       </p>
+       <p class="text-xs text-dark-500 mt-2" id="ai-collect-item-name">
+        数据名称:
+        <span class="text-light-100">
+         企业客户信息表
+        </span>
+       </p>
+      </div>
+     </div>
+     <div class="bg-dark-900/50 rounded-md p-3 text-sm text-dark-500 text-xs">
+      <p>
+       <i class="fas fa-info-circle text-primary mr-1">
+       </i>
+       AI深度采集将基于现有数据进行扩展分析，提取更多相关信息。
+      </p>
+     </div>
+    </div>
+    <div class="p-4 bg-dark-900/50 rounded-b-lg flex justify-end gap-3">
+     <button class="btn-outline" id="cancel-ai-collect">
+      取消
+     </button>
+     <button class="btn-primary" id="confirm-ai-collect">
+      开始采集
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- [/MODULE] 2l4_AI深度采集确认弹窗 -->
+  <!-- [/MODULE] 1k3_删除确认弹窗 -- 用于确认AI深度采集操作，包含取消和开始采集按钮 -->
+  <!-- [JSMOD] 2m5_侧边栏交互 -->
+  <script id="sidebar-script">
+   document.addEventListener('DOMContentLoaded', function () {
+  var sidebarToggle = document.getElementById('sidebar-toggle');
+  var sidebar = document.getElementById('sidebar');
+  sidebarToggle.addEventListener('click', function () {
+    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('absolute');
+    sidebar.classList.toggle('h-full');
+    sidebar.classList.toggle('left-0');
+    sidebar.classList.toggle('top-16');
+  });
+
+  // 点击页面其他区域关闭侧边栏（移动端）
+  document.addEventListener('click', function (e) {
+    if (window.innerWidth < 1024 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && !sidebar.classList.contains('hidden')) {
+      sidebar.classList.add('hidden');
+    }
+  });
+});
+  </script>
+  <!-- [/JSMOD] 2m5_侧边栏交互 -- 处理移动端侧边栏的显示和隐藏 -->
+  <!-- [JSMOD] 3n6_数据表格交互 -->
+  <script id="table-script">
+   document.addEventListener('DOMContentLoaded', function () {
+  var selectAllCheckbox = document.getElementById('select-all');
+  var tableSelectAllCheckbox = document.getElementById('table-select-all');
+  var dataCheckboxes = document.querySelectorAll('.data-checkbox');
+  var selectedCountElement = document.getElementById('selected-count');
+  var batchDeleteBtn = document.getElementById('btn-batch-delete');
+  var batchAICollectBtn = document.getElementById('btn-batch-ai');
+  var deleteButtons = document.querySelectorAll('.btn-delete');
+  var aiCollectButtons = document.querySelectorAll('.btn-ai-collect');
+  var deleteModal = document.getElementById('delete-modal');
+  var aiCollectModal = document.getElementById('ai-collect-modal');
+  var modalContent = document.getElementById('modal-content');
+  var aiModalContent = document.getElementById('ai-modal-content');
+  var cancelDeleteBtn = document.getElementById('cancel-delete');
+  var confirmDeleteBtn = document.getElementById('confirm-delete');
+  var cancelAICollectBtn = document.getElementById('cancel-ai-collect');
+  var confirmAICollectBtn = document.getElementById('confirm-ai-collect');
+
+  // 更新选中计数和批量按钮状态
+  function updateSelectedState() {
+    var checkedCount = document.querySelectorAll('.data-checkbox:checked').length;
+    selectedCountElement.textContent = "\u5DF2\u9009\u62E9".concat(checkedCount, "\u6761\u6570\u636E");
+
+    // 更新批量操作按钮状态
+    batchDeleteBtn.disabled = checkedCount === 0;
+    batchAICollectBtn.disabled = checkedCount === 0;
+
+    // 更新全选框状态
+    selectAllCheckbox.checked = checkedCount === dataCheckboxes.length && dataCheckboxes.length > 0;
+    tableSelectAllCheckbox.checked = selectAllCheckbox.checked;
+  }
+
+  // 全选/取消全选
+  function toggleSelectAll(checked) {
+    dataCheckboxes.forEach(function (checkbox) {
+      checkbox.checked = checked;
+    });
+    updateSelectedState();
+  }
+
+  // 绑定全选框事件
+  selectAllCheckbox.addEventListener('change', function () {
+    toggleSelectAll(this.checked);
+  });
+  tableSelectAllCheckbox.addEventListener('change', function () {
+    toggleSelectAll(this.checked);
+    selectAllCheckbox.checked = this.checked;
+  });
+
+  // 绑定数据行复选框事件
+  dataCheckboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', updateSelectedState);
+  });
+
+  // 打开弹窗动画
+  function openModal(modal, content) {
+    modal.classList.remove('hidden');
+    setTimeout(function () {
+      content.classList.remove('scale-95', 'opacity-0');
+      content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+  }
+
+  // 关闭弹窗动画
+  function closeModal(modal, content) {
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      modal.classList.add('hidden');
+    }, 300);
+  }
+
+  // 绑定删除按钮事件
+  deleteButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var row = this.closest('tr');
+      var dataName = row.querySelector('td:nth-child(3) span').textContent;
+      document.querySelector('#delete-item-name span').textContent = dataName;
+      openModal(deleteModal, modalContent);
+    });
+  });
+
+  // 绑定AI采集按钮事件
+  aiCollectButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var row = this.closest('tr');
+      var dataName = row.querySelector('td:nth-child(3) span').textContent;
+      document.querySelector('#ai-collect-item-name span').textContent = dataName;
+      openModal(aiCollectModal, aiModalContent);
+    });
+  });
+
+  // 绑定批量删除按钮事件
+  batchDeleteBtn.addEventListener('click', function () {
+    document.querySelector('#delete-item-name span').textContent = "\u5DF2\u9009\u62E9\u7684".concat(document.querySelectorAll('.data-checkbox:checked').length, "\u6761\u6570\u636E");
+    openModal(deleteModal, modalContent);
+  });
+
+  // 绑定批量AI采集按钮事件
+  batchAICollectBtn.addEventListener('click', function () {
+    document.querySelector('#ai-collect-item-name span').textContent = "\u5DF2\u9009\u62E9\u7684".concat(document.querySelectorAll('.data-checkbox:checked').length, "\u6761\u6570\u636E");
+    openModal(aiCollectModal, aiModalContent);
+  });
+
+  // 取消删除
+  cancelDeleteBtn.addEventListener('click', function () {
+    closeModal(deleteModal, modalContent);
+  });
+
+  // 确认删除
+  confirmDeleteBtn.addEventListener('click', function () {
+    // 模拟删除操作
+    confirmDeleteBtn.disabled = true;
+    confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>处理中...</span>';
+    setTimeout(function () {
+      closeModal(deleteModal, modalContent);
+
+      // 重置按钮状态
+      confirmDeleteBtn.disabled = false;
+      confirmDeleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i><span>确认删除</span>';
+
+      // 模拟删除后重新加载数据
+      updateSelectedState();
+
+      // 显示成功提示
+      showNotification('删除成功', '已成功删除选中的数据', 'success');
+    }, 1500);
+  });
+
+  // 取消AI采集
+  cancelAICollectBtn.addEventListener('click', function () {
+    closeModal(aiCollectModal, aiModalContent);
+  });
+
+  // 确认AI采集
+  confirmAICollectBtn.addEventListener('click', function () {
+    // 模拟AI采集操作
+    confirmAICollectBtn.disabled = true;
+    confirmAICollectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>处理中...</span>';
+    setTimeout(function () {
+      closeModal(aiCollectModal, aiModalContent);
+
+      // 重置按钮状态
+      confirmAICollectBtn.disabled = false;
+      confirmAICollectBtn.innerHTML = '<i class="fas fa-robot"></i><span>开始采集</span>';
+
+      // 显示成功提示
+      showNotification('采集任务已提交', 'AI深度采集任务已成功提交', 'success');
+    }, 1500);
+  });
+
+  // 点击模态框背景关闭弹窗
+  deleteModal.addEventListener('click', function (e) {
+    if (e.target === deleteModal) {
+      closeModal(deleteModal, modalContent);
+    }
+  });
+  aiCollectModal.addEventListener('click', function (e) {
+    if (e.target === aiCollectModal) {
+      closeModal(aiCollectModal, aiModalContent);
+    }
+  });
+
+  // 搜索功能
+  var searchInput = document.getElementById('search-input');
+  var searchBtn = document.getElementById('btn-search');
+  searchBtn.addEventListener('click', performSearch);
+  searchInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  });
+  function performSearch() {
+    var searchTerm = searchInput.value.trim().toLowerCase();
+    // 这里仅做演示，实际项目中应该发送请求到服务器
+    console.log('搜索关键词:', searchTerm);
+    if (searchTerm) {
+      showNotification('搜索完成', "\u5DF2\u627E\u5230\u5305\u542B\"".concat(searchTerm, "\"\u7684\u76F8\u5173\u6570\u636E"), 'info');
+    }
+  }
+
+  // 刷新按钮
+  document.getElementById('btn-refresh').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>刷新中...</span>';
+    setTimeout(function () {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sync-alt"></i><span>刷新</span>';
+      showNotification('刷新成功', '数据已更新至最新状态', 'success');
+    }, 1000);
+  });
+
+  // 通知提示功能
+  function showNotification(title, message) {
+    var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'info';
+    // 创建通知元素
+    var notification = document.createElement('div');
+    notification.className = "fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full max-w-sm w-full".concat(type === 'success' ? 'bg-green-900/80 border border-green-800' : type === 'error' ? 'bg-red-900/80 border border-red-800' : type === 'warning' ? 'bg-yellow-900/80 border border-yellow-800' : 'bg-primary/80 border border-primary/50');
+    notification.innerHTML = "<div class=\"flex items-start gap-3\">\n                        <div class=\"".concat(type === 'success' ? 'text-green-400' : type === 'error' ? 'text-red-400' : type === 'warning' ? 'text-yellow-400' : 'text-blue-400', "\">\n                            <i class=\"fas").concat(type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle', "text-xl\"></i>\n                        </div>\n                        <div class=\"flex-1\">\n                            <h4 class=\"font-medium text-white\">").concat(title, "</h4>\n                            <p class=\"text-sm text-white/80 mt-1\">").concat(message, "</p>\n                        </div>\n                        <button class=\"text-white/50 hover:text-white\">\n                            <i class=\"fas fa-times\"></i>\n                        </button>\n                    </div>");
+    document.body.appendChild(notification);
+
+    // 显示通知
+    setTimeout(function () {
+      notification.classList.remove('translate-x-full');
+    }, 10);
+
+    // 自动关闭
+    var timeout = setTimeout(function () {
+      closeNotification(notification);
+    }, 3000);
+
+    // 手动关闭
+    notification.querySelector('button').addEventListener('click', function () {
+      clearTimeout(timeout);
+      closeNotification(notification);
+    });
+    function closeNotification(el) {
+      el.classList.add('translate-x-full');
+      setTimeout(function () {
+        el.remove();
+      }, 300);
+    }
+  }
+});
+  </script>
+  <!-- [/JSMOD] 3n6_数据表格交互 -- 处理表格选择、批量操作、删除确认和AI采集功能 -->
+ 
+
+</body></html>

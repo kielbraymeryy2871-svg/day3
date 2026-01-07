@@ -1,0 +1,646 @@
+{% extends "base.html" %}
+
+{% block title %}数据管理{% endblock %}
+
+{% block content %}
+<style>
+    @layer utilities {
+        .content-auto {
+            content-visibility: auto;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .btn-primary {
+            @apply bg-primary text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-primary/90 active:scale-100 shadow-md hover:shadow-lg flex items-center gap-2;
+        }
+        .btn-secondary {
+            @apply bg-neutral-700 text-white border border-neutral-500 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-neutral-600 active:scale-100;
+        }
+        .btn-danger {
+            @apply bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-red-700 active:scale-100 shadow-md hover:shadow-lg flex items-center gap-2;
+        }
+        .btn-outline {
+            @apply border border-dark-medium text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-dark-medium active:scale-100;
+        }
+        .table-hover-row {
+            @apply hover:bg-dark-medium transition-colors;
+        }
+        .input-dark {
+            @apply w-full px-4 py-2 rounded-lg border border-dark-medium bg-dark-700 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-300 placeholder:text-gray-custom;
+        }
+        .status-completed {
+            @apply px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400 border border-green-900/50;
+        }
+        .status-pending {
+            @apply px-2 py-1 text-xs rounded-full bg-yellow-900/30 text-yellow-400 border border-yellow-900/50;
+        }
+        .status-failed {
+            @apply px-2 py-1 text-xs rounded-full bg-red-900/30 text-red-400 border border-red-900/50;
+        }
+    }
+</style>
+
+<div id="data-management-page">
+    <!-- 页面标题 -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-semibold">
+                数据管理
+            </h2>
+            <p class="text-gray-custom text-sm mt-1">
+                管理已采集保存的数据
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <button class="btn-primary" id="btn-add-data">
+                <i class="fas fa-plus">
+                </i>
+                <span>
+                    新增数据
+                </span>
+            </button>
+            <button class="btn-outline" id="btn-refresh">
+                <i class="fas fa-sync-alt">
+                </i>
+                <span>
+                    刷新
+                </span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 搜索区域 -->
+    <div class="bg-dark-light rounded-lg border border-dark-medium p-4 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <label class="block text-sm text-gray-custom mb-1">
+                    关键词搜索
+                </label>
+                <div class="relative">
+                    <input class="input-dark w-full pl-10" id="search" placeholder="请输入关键词进行模糊查询..." value="{{ search_keyword or '' }}">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-custom">
+                    </i>
+                </div>
+            </div>
+            <div class="w-full md:w-48">
+                <label class="block text-sm text-gray-custom mb-1">
+                    数据类型
+                </label>
+                <select class="input-dark w-full" id="data-type">
+                    <option value="">
+                        全部类型
+                    </option>
+                    <option value="type1">
+                        结构化数据
+                    </option>
+                    <option value="type2">
+                        统计数据
+                    </option>
+                    <option value="type3">
+                        日志数据
+                    </option>
+                    <option value="type4">
+                        文档数据
+                    </option>
+                </select>
+            </div>
+            <div class="w-full md:w-48">
+                <label class="block text-sm text-gray-custom mb-1">
+                    采集状态
+                </label>
+                <select class="input-dark w-full" id="collect-status">
+                    <option value="">
+                        全部状态
+                    </option>
+                    <option value="completed">
+                        已完成
+                    </option>
+                    <option value="pending">
+                        处理中
+                    </option>
+                    <option value="failed">
+                        已失败
+                    </option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button class="btn-primary w-full md:w-auto" id="search-btn">
+                    <i class="fas fa-search">
+                    </i>
+                    <span>
+                        搜索
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 批量操作区域 -->
+    <div class="bg-dark-light rounded-lg border border-dark-medium p-4 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center">
+                    <input class="rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-medium" id="select-all" type="checkbox">
+                    <label class="ml-2 text-sm" for="select-all">
+                        全选
+                    </label>
+                </div>
+                <span class="text-sm text-gray-custom" id="selected-count">
+                    已选择 0 条数据
+                </span>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button class="btn-danger" disabled="" id="batch-delete-btn">
+                    <i class="fas fa-trash-alt">
+                    </i>
+                    <span>
+                        批量删除
+                    </span>
+                </button>
+                <button class="btn-primary" disabled="" id="batch-ai-collect-btn">
+                    <i class="fas fa-robot">
+                    </i>
+                    <span>
+                        批量AI深度采集
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 数据表格 -->
+    <div class="bg-dark-light rounded-lg border border-dark-medium overflow-hidden mb-6">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-dark-light border-b border-dark-medium">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider w-12">
+                            <input class="rounded text-primary focus:ring-primary/50 bg-dark-700 border-dark-medium" id="header-select-all" type="checkbox">
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            ID
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            数据名称
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            数据类型
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            采集时间
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            状态
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-custom uppercase tracking-wider">
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <!-- 表格数据行将通过JS动态生成 -->
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页区域 -->
+        <div class="px-4 py-3 flex items-center justify-between border-t border-dark-medium" id="pagination-container">
+            <div class="text-sm text-gray-custom">
+                显示
+                <span id="start-record">1</span>-
+                <span id="end-record">{{ per_page or 10 }}</span>
+                条，共
+                <span id="total-records">{{ total or 0 }}</span>
+                条数据
+            </div>
+            <div class="flex items-center gap-2" id="pagination-controls">
+                <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-medium text-gray-custom hover:border-dark-light hover:text-white transition-colors" id="prev-page" disabled>
+                    <i class="fas fa-chevron-left text-xs">
+                    </i>
+                </button>
+                <div class="flex items-center gap-1" id="page-buttons">
+                    <!-- 页码按钮将通过JS动态生成 -->
+                </div>
+                <button class="w-8 h-8 flex items-center justify-center rounded border border-dark-medium text-gray-custom hover:border-dark-light hover:text-white transition-colors" id="next-page">
+                    <i class="fas fa-chevron-right text-xs">
+                    </i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="delete-modal">
+    <div class="bg-dark-light border border-dark-medium rounded-lg w-full max-w-md mx-4">
+        <div class="p-5 border-b border-dark-medium">
+            <h3 class="text-lg font-medium">
+                确认删除
+            </h3>
+        </div>
+        <div class="p-5">
+            <div class="flex items-start gap-3 mb-4">
+                <div class="text-amber-400 mt-1">
+                    <i class="fas fa-exclamation-triangle text-xl">
+                    </i>
+                </div>
+                <div>
+                    <p class="text-sm">
+                        您确定要删除选中的数据吗？此操作不可撤销，删除后将无法恢复。
+                    </p>
+                    <p class="text-xs text-gray-custom mt-2" id="delete-item-name">
+                        数据名称:
+                        <span class="text-white">
+                            
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-dark/50 rounded-b-lg flex justify-end gap-3">
+            <button class="btn-outline" id="cancel-btn">
+                取消
+            </button>
+            <button class="btn-danger" id="confirm-btn">
+                确认删除
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- AI深度采集确认弹窗 -->
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="ai-collect-modal">
+    <div class="bg-dark-light border border-dark-medium rounded-lg w-full max-w-md mx-4">
+        <div class="p-5 border-b border-dark-medium">
+            <h3 class="text-lg font-medium">
+                AI深度采集
+            </h3>
+        </div>
+        <div class="p-5">
+            <div class="flex items-start gap-3 mb-4">
+                <div class="text-blue-400 mt-1">
+                    <i class="fas fa-robot text-xl">
+                    </i>
+                </div>
+                <div>
+                    <p class="text-sm">
+                        系统将对选中的数据进行AI深度采集，可能需要几分钟时间。
+                    </p>
+                    <p class="text-xs text-gray-custom mt-2" id="ai-collect-item-name">
+                        数据名称:
+                        <span class="text-white">
+                            
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="bg-dark/50 rounded-md p-3 text-sm text-gray-custom text-xs">
+                <p>
+                    <i class="fas fa-info-circle text-primary mr-1">
+                    </i>
+                    AI深度采集将基于现有数据进行扩展分析，提取更多相关信息。
+                </p>
+            </div>
+        </div>
+        <div class="p-4 bg-dark/50 rounded-b-lg flex justify-end gap-3">
+            <button class="btn-outline" id="cancel-ai-btn">
+                取消
+            </button>
+            <button class="btn-primary" id="confirm-ai-btn">
+                开始采集
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 全局变量
+    let currentPage = 1;
+    let perPage = 10;
+    let totalRecords = 0;
+    let searchKeyword = '{{ search_keyword or '' }}';
+    let selectedIds = new Set();
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 加载数据
+        loadData();
+        
+        // 绑定搜索按钮点击事件
+        document.getElementById('search-btn').addEventListener('click', function() {
+            searchKeyword = document.getElementById('search').value;
+            currentPage = 1;
+            loadData();
+        });
+        
+        // 绑定全选复选框事件
+        document.getElementById('header-select-all').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                if (isChecked) {
+                    selectedIds.add(checkbox.value);
+                } else {
+                    selectedIds.delete(checkbox.value);
+                }
+            });
+            updateBatchButtons();
+        });
+        
+        // 绑定批量删除按钮事件
+        document.getElementById('batch-delete-btn').addEventListener('click', function() {
+            if (selectedIds.size > 0) {
+                showConfirmModal('批量删除', `您确定要删除选中的 ${selectedIds.size} 条数据吗？`, function() {
+                    batchDeleteData(Array.from(selectedIds));
+                });
+            }
+        });
+        
+        // 绑定批量AI深度采集按钮事件
+        document.getElementById('batch-ai-collect-btn').addEventListener('click', function() {
+            if (selectedIds.size > 0) {
+                showConfirmModal('批量AI深度采集', `您确定要对选中的 ${selectedIds.size} 条数据进行AI深度采集吗？`, function() {
+                    batchAiCollectData(Array.from(selectedIds));
+                });
+            }
+        });
+        
+        // 绑定取消按钮事件
+        document.getElementById('cancel-btn').addEventListener('click', function() {
+            hideConfirmModal();
+        });
+        
+        // 绑定确认按钮事件
+        document.getElementById('confirm-btn').addEventListener('click', function() {
+            if (window.confirmCallback) {
+                window.confirmCallback();
+                hideConfirmModal();
+            }
+        });
+    });
+    
+    // 加载数据
+    function loadData() {
+        fetch(`/data-management/get-data?page=${currentPage}&per_page=${perPage}&search=${encodeURIComponent(searchKeyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    renderData(data.data);
+                    updatePagination(data.pagination);
+                    totalRecords = data.pagination.total;
+                } else {
+                    console.error('加载数据失败:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('加载数据出错:', error);
+            });
+    }
+    
+    // 渲染数据
+    function renderData(data) {
+        const tbody = document.getElementById('data-table-body');
+        tbody.innerHTML = '';
+        
+        if (data.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = `
+                <td colspan="7" class="px-4 py-8 text-center text-neutral-400">
+                    暂无数据
+                </td>
+            `;
+            tbody.appendChild(emptyRow);
+            return;
+        }
+        
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'table-row-hover border-b border-neutral-600';
+            
+            row.innerHTML = `
+                <td class="px-4 py-3">
+                    <input type="checkbox" class="data-checkbox w-4 h-4 rounded border-neutral-300 text-primary focus:ring-primary" value="${item.id}">
+                </td>
+                <td class="px-4 py-4 text-sm">#${item.id}</td>
+                <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                        <img alt="数据缩略图" class="w-8 h-8 rounded object-cover" src="${item.thumbnail || 'https://design.gemcoder.com/api/searchImage?query=data item thumbnail, dark theme, information visualization&amp;width=40&amp;height=40'}">
+                        <span>${item.title}</span>
+                    </div>
+                </td>
+                <td class="px-4 py-4 text-sm">${item.type || '未知类型'}</td>
+                <td class="px-4 py-4 text-sm text-gray-custom">${item.timestamp}</td>
+                <td class="px-4 py-4">
+                    <span class="${item.status === 'completed' ? 'status-completed' : item.status === 'pending' ? 'status-pending' : 'status-failed'}">
+                        ${item.status === 'completed' ? '已完成' : item.status === 'pending' ? '处理中' : '已失败'}
+                    </span>
+                </td>
+                <td class="px-4 py-4">
+                    <div class="flex items-center gap-2">
+                        <button class="text-primary hover:text-primary/80 p-1 rounded hover:bg-primary/10 transition-colors" title="查看详情">
+                            <i class="fas fa-eye">
+                            </i>
+                        </button>
+                        <button class="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/20 transition-colors" title="编辑">
+                            <i class="fas fa-edit">
+                            </i>
+                        </button>
+                        <button type="button" class="text-yellow-400 hover:text-yellow-300 p-1 rounded hover:bg-yellow-900/20 transition-colors ai-collect-btn" title="AI深度采集" data-id="${item.id}">
+                            <i class="fas fa-robot">
+                            </i>
+                        </button>
+                        <button type="button" class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors delete-btn" title="删除" data-id="${item.id}">
+                            <i class="fas fa-trash-alt">
+                            </i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+        
+        // 绑定数据行复选框事件
+        const checkboxes = document.querySelectorAll('.data-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedIds.add(this.value);
+                } else {
+                    selectedIds.delete(this.value);
+                }
+                updateBatchButtons();
+            });
+        });
+        
+        // 绑定删除按钮事件
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                showConfirmModal('删除数据', '您确定要删除这条数据吗？', function() {
+                    deleteData(id);
+                });
+            });
+        });
+        
+        // 绑定AI深度采集按钮事件
+        const aiCollectButtons = document.querySelectorAll('.ai-collect-btn');
+        aiCollectButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                showConfirmModal('AI深度采集', '您确定要对这条数据进行AI深度采集吗？', function() {
+                    aiCollectData(id);
+                });
+            });
+        });
+    }
+    
+    // 更新分页控件
+    function updatePagination(pagination) {
+        const pageButtons = document.getElementById('page-buttons');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const startRecord = document.getElementById('start-record');
+        const endRecord = document.getElementById('end-record');
+        const totalRecordsEl = document.getElementById('total-records');
+        
+        // 更新记录信息
+        startRecord.textContent = pagination.start_record;
+        endRecord.textContent = pagination.end_record;
+        totalRecordsEl.textContent = pagination.total;
+        
+        // 更新分页按钮
+        pageButtons.innerHTML = '';
+        for (let i = pagination.start_page; i <= pagination.end_page; i++) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `px-3 py-1 rounded text-sm ${i === currentPage ? 'bg-primary text-white' : 'bg-neutral-700 text-white hover:bg-neutral-600'}`;
+            button.textContent = i;
+            button.addEventListener('click', function() {
+                currentPage = i;
+                loadData();
+            });
+            pageButtons.appendChild(button);
+        }
+        
+        // 更新上一页/下一页按钮状态
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === pagination.total_pages;
+        
+        // 绑定上一页/下一页按钮事件
+        prevPageBtn.onclick = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadData();
+            }
+        };
+        
+        nextPageBtn.onclick = function() {
+            if (currentPage < pagination.total_pages) {
+                currentPage++;
+                loadData();
+            }
+        };
+    }
+    
+    // 更新批量操作按钮状态
+    function updateBatchButtons() {
+        const batchDeleteBtn = document.getElementById('batch-delete-btn');
+        const batchAiCollectBtn = document.getElementById('batch-ai-collect-btn');
+        
+        batchDeleteBtn.disabled = selectedIds.size === 0;
+        batchAiCollectBtn.disabled = selectedIds.size === 0;
+    }
+    
+    // 显示确认弹窗
+    function showConfirmModal(title, message, callback) {
+        const modal = document.getElementById('confirm-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        window.confirmCallback = callback;
+        
+        modal.classList.remove('hidden');
+    }
+    
+    // 隐藏确认弹窗
+    function hideConfirmModal() {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.add('hidden');
+        window.confirmCallback = null;
+    }
+    
+    // 删除数据
+    function deleteData(id) {
+        fetch('/data-management/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'id': id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                loadData();
+                selectedIds.delete(id);
+                updateBatchButtons();
+            } else {
+                console.error('删除数据失败:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('删除数据出错:', error);
+        });
+    }
+    
+    // 批量删除数据
+    function batchDeleteData(ids) {
+        fetch('/data-management/batch-delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'ids': JSON.stringify(ids)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                loadData();
+                selectedIds.clear();
+                updateBatchButtons();
+                document.getElementById('header-select-all').checked = false;
+            } else {
+                console.error('批量删除数据失败:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('批量删除数据出错:', error);
+        });
+    }
+    
+    // AI深度采集
+    function aiCollectData(id) {
+        // 后续实现AI深度采集功能
+        alert('AI深度采集功能开发中...');
+    }
+    
+    // 批量AI深度采集
+    function batchAiCollectData(ids) {
+        // 后续实现批量AI深度采集功能
+        alert('批量AI深度采集功能开发中...');
+    }
+</script>
+{% endblock %}
