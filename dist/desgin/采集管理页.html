@@ -1,0 +1,754 @@
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>
+   数据采集管理系统
+  </title>
+  <script src="https://res.gemcoder.com/js/reload.js">
+  </script>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#36A2EB',
+        secondary: '#4BC0C0',
+        neutral: {
+          100: '#F5F7FA',
+          200: '#E5E6EB',
+          300: '#C9CDD4',
+          400: '#86909C',
+          500: '#4E5969',
+          600: '#272E3B',
+          700: '#1D2129',
+          800: '#1A202C',
+          900: '#121212'
+        }
+      },
+      spacing: {
+        '5.5': '1.375rem',
+        '18': '4.5rem'
+      },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif']
+      },
+      boxShadow: {
+        'card': '0 4px 20px 0 rgba(0, 0, 0, 0.05)'
+      }
+    }
+  }
+};</script>
+  <style type="text/tailwindcss">@layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .switch-checked {
+                @apply bg-primary;
+            }
+            .switch-unchecked {
+                @apply bg-neutral-300;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-primary/90 active:scale-100 shadow-md hover:shadow-lg;
+            }
+.btn-secondary {
+                @apply bg-neutral-700 text-white border border-neutral-500 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-neutral-600 active:scale-100;
+            }
+        }</style>
+ </head>
+<body class="bg-neutral-900 font-inter text-white min-h-screen flex flex-col">
+  <!-- [MODULE] nav_顶部导航栏 -->
+  <header class="bg-neutral-800 border-b border-neutral-700 sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-rocket text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-white">数据采集管理系统</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="text-neutral-300 hover:text-white transition-colors">
+          <i class="fas fa-bell"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <img src="https://design.gemcoder.com/api/searchImage?query=user avatar with neutral background, minimalist style&amp;width=40&amp;height=40" alt="User Avatar" class="w-8 h-8 rounded-full object-cover">
+          <span class="text-sm font-medium">管理员</span>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- [/MODULE] nav_顶部导航栏 -- 包含系统名称、通知图标和用户信息 -->
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- [MODULE] sidebar_侧边导航栏 -->
+    <aside class="w-64 bg-neutral-800 border-r border-neutral-700 overflow-y-auto scrollbar-hide">
+      <nav class="py-6">
+        <div class="px-4 mb-6">
+          <h2 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">主菜单</h2>
+        </div>
+        <ul class="space-y-1">
+          <li>
+            <a href="javascript:void(0);" class="nav-link active flex items-center px-4 py-3 text-white bg-primary/20 border-l-4 border-primary">
+              <i class="fas fa-database w-5 text-center"></i>
+              <span class="ml-3">采集管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="nav-link flex items-center px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors">
+              <i class="fas fa-cogs w-5 text-center"></i>
+              <span class="ml-3">爬虫管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="nav-link flex items-center px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors">
+              <i class="fas fa-chart-line w-5 text-center"></i>
+              <span class="ml-3">数据统计</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="nav-link flex items-center px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors">
+              <i class="fas fa-users w-5 text-center"></i>
+              <span class="ml-3">用户管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" class="nav-link flex items-center px-4 py-3 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors">
+              <i class="fas fa-cog w-5 text-center"></i>
+              <span class="ml-3">系统设置</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <!-- [/MODULE] sidebar_侧边导航栏 -- 包含系统主菜单导航 -->
+
+    <!-- [MODULE] a1b_主内容区域 -->
+    <main class="flex-1 overflow-y-auto p-6">
+<!-- [MODULE] c2d_采集管理页面 -->
+   <div class="bg-neutral-800 rounded-xl shadow-card p-6 md:p-8" id="collection-management">
+    <!-- [MODULE] e3f_采集管理页面:页面标题 -->
+    <div class="mb-8">
+     <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-white mb-2">
+      数据采集管理
+     </h1>
+     <p class="text-neutral-300">
+      输入关键字，选择爬虫源，开始定向采集数据
+     </p>
+    </div>
+    <!-- [/MODULE] e3f_采集管理页面:页面标题 -- 包含页面标题和简短描述 -->
+    <!-- [MODULE] g4h_采集管理页面:关键字输入区 -->
+    <div class="mb-8">
+     <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex-1 relative">
+       <label class="block text-sm font-medium text-white mb-1" for="keyword">
+        采集关键字
+       </label>
+       <div class="relative">
+        <input class="w-full px-4 py-3 pl-10 pr-40 rounded-lg border border-neutral-600 bg-neutral-700 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-300" id="keyword" placeholder="请输入需要采集的关键字..." type="text">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+        </i>
+       </div>
+      </div>
+      <div class="flex items-end gap-3">
+       <button class="btn-primary flex items-center gap-2" id="start-collection">
+        <i class="fas fa-play">
+        </i>
+        <span>
+         开始采集
+        </span>
+       </button>
+       <button class="btn-secondary flex items-center gap-2" disabled="" id="stop-collection">
+        <i class="fas fa-stop">
+        </i>
+        <span>
+         停止采集
+        </span>
+       </button>
+      </div>
+     </div>
+     <div class="hidden mt-2 text-red-500 text-sm flex items-center gap-1" id="keyword-error">
+      <i class="fas fa-exclamation-circle">
+      </i>
+      <span>
+       请输入有效的关键字
+      </span>
+     </div>
+    </div>
+    <!-- [/MODULE] g4h_采集管理页面:关键字输入区 -- 包含关键字输入框、开始采集按钮和停止采集按钮 -->
+    <!-- [MODULE] i5j_采集管理页面:爬虫源选择开关面板 -->
+    <div class="mb-8 p-5 bg-neutral-700 rounded-lg">
+     <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white">
+      <i class="fas fa-cogs text-primary">
+      </i>
+      <span>
+       爬虫源选择
+      </span>
+     </h2>
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="crawler-sources">
+      <!-- 爬虫源选项将通过JS动态生成 -->
+     </div>
+     <div class="mt-4 flex items-center justify-between">
+      <button class="text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1" id="select-all">
+       <i class="fas fa-check-square">
+       </i>
+       <span>
+        全选
+       </span>
+      </button>
+      <button class="text-sm text-neutral-500 hover:text-neutral-700 transition-colors flex items-center gap-1" id="deselect-all">
+       <i class="fas fa-square">
+       </i>
+       <span>
+        取消全选
+       </span>
+      </button>
+     </div>
+    </div>
+    <!-- [/MODULE] i5j_采集管理页面:爬虫源选择开关面板 -- 包含爬虫源选择开关、全选按钮和取消全选按钮 -->
+    <!-- [MODULE] k6l_采集管理页面:采集状态显示区 -->
+    <div class="mb-6 hidden" id="collection-status">
+     <div class="flex items-center justify-between bg-primary/20 border border-primary/30 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+       <div class="w-3 h-3 rounded-full bg-primary animate-pulse">
+       </div>
+       <span class="font-medium">
+        正在采集数据...
+       </span>
+      </div>
+      <div class="text-sm text-neutral-300">
+       <span id="collected-count">
+        已采集: 0
+       </span>
+       |
+       <span id="selected-count">
+        已选择: 0
+       </span>
+      </div>
+     </div>
+    </div>
+    <!-- [/MODULE] k6l_采集管理页面:采集状态显示区 -- 显示当前采集状态、已采集数量和已选择数量 -->
+    <!-- [MODULE] m7n_采集管理页面:数据操作区 -->
+    <div class="mb-6 hidden" id="data-actions">
+     <div class="flex justify-between items-center">
+      <button class="btn-primary flex items-center gap-2" id="save-selected">
+       <i class="fas fa-save">
+       </i>
+       <span>
+        保存选中数据
+       </span>
+      </button>
+      <div class="flex gap-2">
+       <button class="btn-secondary text-sm px-3 py-1.5" id="select-visible">
+        <i class="fas fa-check">
+        </i>
+        选择可见
+       </button>
+       <button class="btn-secondary text-sm px-3 py-1.5" id="clear-selected">
+        <i class="fas fa-times">
+        </i>
+        清除选择
+       </button>
+      </div>
+     </div>
+    </div>
+    <!-- [/MODULE] m7n_采集管理页面:数据操作区 -- 包含保存选中数据、选择可见数据和清除选择按钮 -->
+    <!-- [MODULE] o8p_采集管理页面:橱窗数据列表 -->
+    <div class="mt-8" id="collection-results">
+     <div class="py-20 text-center" id="empty-state">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-700 mb-4">
+       <i class="fas fa-search text-2xl text-neutral-300">
+       </i>
+      </div>
+      <h3 class="text-lg font-medium text-white mb-1">
+       暂无采集数据
+      </h3>
+      <p class="text-neutral-300 max-w-md mx-auto">
+       输入关键字，选择爬虫源，点击"开始采集"按钮开始采集数据
+      </p>
+     </div>
+     <div class="py-20 text-center hidden" id="loading-state">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4">
+      </div>
+      <h3 class="text-lg font-medium text-white">
+       正在准备采集...
+      </h3>
+     </div>
+     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden" id="results-grid">
+      <!-- 采集结果将通过JS动态生成 -->
+     </div>
+    </div>
+    <!-- [/MODULE] o8p_采集管理页面:橱窗数据列表 -- 包含空状态、加载状态和橱窗数据列表，显示采集到的数据（封面图片、标题、时间、来源） -->
+   </div>
+   <!-- [/MODULE] c2d_采集管理页面 -- 用于用户输入关键字实现定向采集数据的功能模块，支持选择爬虫源，显示采集数据并保存 -->
+  </main></div>
+  <!-- [/MODULE] a1b_主内容区域 -- 包含采集管理页面 -->
+  <!-- [MODULE] p9q_保存成功提示弹窗 -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="save-success-modal">
+   <div class="bg-neutral-800 rounded-xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+    <div class="text-center">
+     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-check text-2xl text-green-500">
+      </i>
+     </div>
+     <h3 class="text-xl font-bold text-white mb-2">
+      保存成功
+     </h3>
+     <p class="text-neutral-300 mb-6" id="save-success-message">
+      已成功保存选中的数据到数据库
+     </p>
+     <button class="btn-primary w-full" id="close-modal">
+      <i class="fas fa-check-circle">
+      </i>
+      确认
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- [/MODULE] p9q_保存成功提示弹窗 -- 数据保存成功后显示的提示弹窗，包含成功信息和确认按钮 -->
+  <!-- [JSMOD] r0s_爬虫源数据模拟 -->
+  <script id="crawler-sources-data">
+   // 模拟爬虫源数据
+var crawlerSources = [{
+  id: 1,
+  name: '新闻资讯爬虫',
+  description: '采集各类新闻网站资讯'
+}, {
+  id: 2,
+  name: '社交媒体爬虫',
+  description: '采集主流社交媒体内容'
+}, {
+  id: 3,
+  name: '电商平台爬虫',
+  description: '采集电商平台商品信息'
+}, {
+  id: 4,
+  name: '论坛社区爬虫',
+  description: '采集各类论坛和社区内容'
+}, {
+  id: 5,
+  name: '学术论文爬虫',
+  description: '采集学术数据库论文信息'
+}, {
+  id: 6,
+  name: '博客文章爬虫',
+  description: '采集各类博客平台文章'
+}, {
+  id: 7,
+  name: '视频网站爬虫',
+  description: '采集视频平台元数据'
+}, {
+  id: 8,
+  name: '图片资源爬虫',
+  description: '采集图片分享网站资源'
+}];
+  </script>
+  <!-- [/JSMOD] r0s_爬虫源数据模拟 -- 提供模拟的爬虫源数据，用于展示爬虫源选择开关 -->
+  <!-- [JSMOD] t1u_页面元素获取 -->
+  <script id="element-selectors">
+   // 获取DOM元素
+var elements = {
+  keywordInput: document.getElementById('keyword'),
+  startCollectionBtn: document.getElementById('start-collection'),
+  stopCollectionBtn: document.getElementById('stop-collection'),
+  saveSelectedBtn: document.getElementById('save-selected'),
+  selectAllBtn: document.getElementById('select-all'),
+  deselectAllBtn: document.getElementById('deselect-all'),
+  selectVisibleBtn: document.getElementById('select-visible'),
+  clearSelectedBtn: document.getElementById('clear-selected'),
+  crawlerSourcesContainer: document.getElementById('crawler-sources'),
+  collectionStatus: document.getElementById('collection-status'),
+  collectedCount: document.getElementById('collected-count'),
+  selectedCount: document.getElementById('selected-count'),
+  dataActions: document.getElementById('data-actions'),
+  emptyState: document.getElementById('empty-state'),
+  loadingState: document.getElementById('loading-state'),
+  resultsGrid: document.getElementById('results-grid'),
+  keywordError: document.getElementById('keyword-error'),
+  saveSuccessModal: document.getElementById('save-success-modal'),
+  modalContent: document.getElementById('modal-content'),
+  closeModalBtn: document.getElementById('close-modal'),
+  saveSuccessMessage: document.getElementById('save-success-message')
+};
+  </script>
+  <!-- [/JSMOD] t1u_页面元素获取 -- 获取页面中需要操作的DOM元素，方便后续操作 -->
+  <!-- [JSMOD] v2w_爬虫源选择面板渲染 -->
+  <script id="render-crawler-sources">
+   // 渲染爬虫源选择开关
+function renderCrawlerSources() {
+  var container = elements.crawlerSourcesContainer;
+  container.innerHTML = '';
+  crawlerSources.forEach(function (source) {
+    var sourceElement = document.createElement('div');
+    sourceElement.className = 'flex items-center justify-between p-3 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors';
+    sourceElement.innerHTML = "<div>\n                        <label class=\"flex items-center gap-2 cursor-pointer\">\n                            <div class=\"relative inline-block w-10 h-5 mr-2 align-middle select-none transition duration-300 ease-in-out\">\n                                <input type=\"checkbox\" id=\"source-".concat(source.id, "\" class=\"toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary\" checked>\n                                <label for=\"source-").concat(source.id, "\" class=\"toggle-label block overflow-hidden h-5 rounded-full bg-neutral-300 cursor-pointer\"></label>\n                            </div>\n                            <span class=\"font-medium\">").concat(source.name, "</span>\n                        </label>\n                        <p class=\"text-xs text-neutral-500 mt-0.5\">").concat(source.description, "</p>\n                    </div>");
+    container.appendChild(sourceElement);
+
+    // 添加开关切换事件
+    var checkbox = sourceElement.querySelector("#source-".concat(source.id));
+    var label = sourceElement.querySelector("label[for=\"source-".concat(source.id, "\"] .toggle-label"));
+
+    // 初始化开关状态
+    if (checkbox.checked) {
+      label.classList.add('switch-checked');
+      label.classList.remove('switch-unchecked');
+    } else {
+      label.classList.add('switch-unchecked');
+      label.classList.remove('switch-checked');
+    }
+    checkbox.addEventListener('change', function () {
+      if (this.checked) {
+        label.classList.add('switch-checked');
+        label.classList.remove('switch-unchecked');
+      } else {
+        label.classList.add('switch-unchecked');
+        label.classList.remove('switch-checked');
+      }
+    });
+  });
+}
+
+// 页面加载完成后渲染爬虫源
+document.addEventListener('DOMContentLoaded', renderCrawlerSources);
+  </script>
+  <!-- [/JSMOD] v2w_爬虫源选择面板渲染 -- 渲染爬虫源选择开关面板，实现开关切换功能 -->
+  <!-- [JSMOD] x3y_数据采集逻辑 -->
+  <script id="collection-logic">
+   // 采集状态和数据
+var collectionState = {
+  isCollecting: false,
+  collectedItems: [],
+  selectedItems: new Set(),
+  collectionInterval: null,
+  itemIdCounter: 0
+};
+// 生成随机采集数据
+function generateRandomItem(keyword) {
+  collectionState.itemIdCounter++;
+  var id = collectionState.itemIdCounter;
+  var sources = ['新闻资讯', '社交媒体', '电商平台', '论坛社区', '学术论文', '博客文章'];
+  var randomSource = sources[Math.floor(Math.random() * sources.length)];
+  var randomImage = Math.random() > 0.2; // 80%概率有图片
+
+  // 生成随机日期（最近30天内）
+  var today = new Date();
+  var randomDays = Math.floor(Math.random() * 30);
+  var randomDate = new Date(today);
+  randomDate.setDate(today.getDate() - randomDays);
+
+  // 格式化日期
+  var formattedDate = "".concat(randomDate.getFullYear(), "-").concat(String(randomDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(randomDate.getDate()).padStart(2, '0'));
+  return {
+    id: id,
+    title: "".concat(keyword, "-").concat(randomSource, "\u76F8\u5173\u5185\u5BB9").concat(id),
+    url: "https://example.com/item/".concat(id),
+    date: formattedDate,
+    source: randomSource,
+    image: randomImage ? "https://design.gemcoder.com/api/searchImage?query=".concat(encodeURIComponent(keyword + ', article cover image, news style, high quality'), "&width=300&height=200") : null
+  };
+}
+// 开始采集数据
+function startCollection() {
+  var keyword = elements.keywordInput.value.trim();
+
+  // 验证关键字
+  if (!keyword) {
+    elements.keywordError.classList.remove('hidden');
+    elements.keywordInput.classList.add('border-red-500');
+    return;
+  }
+
+  // 隐藏错误提示
+  elements.keywordError.classList.add('hidden');
+  elements.keywordInput.classList.remove('border-red-500');
+
+  // 更新UI状态
+  collectionState.isCollecting = true;
+  elements.startCollectionBtn.disabled = true;
+  elements.stopCollectionBtn.disabled = false;
+  elements.collectionStatus.classList.remove('hidden');
+  elements.dataActions.classList.remove('hidden');
+  elements.emptyState.classList.add('hidden');
+  elements.loadingState.classList.remove('hidden');
+  elements.resultsGrid.classList.add('hidden');
+
+  // 重置采集状态
+  collectionState.collectedItems = [];
+  collectionState.selectedItems.clear();
+  collectionState.itemIdCounter = 0;
+  updateCounters();
+
+  // 模拟采集延迟
+  setTimeout(function () {
+    elements.loadingState.classList.add('hidden');
+    elements.resultsGrid.classList.remove('hidden');
+    elements.resultsGrid.innerHTML = '';
+
+    // 开始模拟数据采集
+    collectionState.collectionInterval = setInterval(function () {
+      var newItem = generateRandomItem(keyword);
+      collectionState.collectedItems.push(newItem);
+      renderNewItem(newItem);
+      updateCounters();
+
+      // 自动滚动到最新位置
+      var lastItem = elements.resultsGrid.lastElementChild;
+      if (lastItem) {
+        lastItem.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+    }, 1500); // 每1.5秒采集一条数据
+  }, 1500); // 模拟初始加载延迟
+}
+// 停止采集数据
+function stopCollection() {
+  collectionState.isCollecting = false;
+  clearInterval(collectionState.collectionInterval);
+
+  // 更新UI状态
+  elements.startCollectionBtn.disabled = false;
+  elements.stopCollectionBtn.disabled = true;
+
+  // 更新状态文本
+  var statusIndicator = elements.collectionStatus.querySelector('.font-medium');
+  statusIndicator.innerHTML = '<i class="fas fa-check-circle mr-2"></i>采集已停止';
+  elements.collectionStatus.classList.remove('bg-primary/10', 'border-primary/20');
+  elements.collectionStatus.classList.add('bg-green-100', 'border-green-200');
+}
+// 渲染新采集的项目
+function renderNewItem(item) {
+  var itemElement = document.createElement('div');
+  itemElement.className = 'bg-white rounded-lg border border-neutral-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 card-hover';
+  itemElement.dataset.id = item.id;
+
+  // 默认图片
+  var defaultImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTBlMGUwIi8+PHBhdGggZD0iTTE1MCwyMEMxMDAsMiA2MCw0MiA2MCwxMDAgQzYwLDE1OCAxMDAsMTk4IDE1MCwxOTggQzIwMCwxOTggMjQwLDE1OCAyNDAsMTAwIEMyNDAsNDIgMjAwLDIgMTUwLDIgWiBNMTUwLDE1MCBDMTI3LjksMTUwIDEwOSwxMzEuOSAxMDksMTA5IEMxMDksODYuMSAxMjcuOSw2OCAxNTAsNjggQzE3Mi4xLDY4IDE5MSw4Ni4xIDE5MSwxMDkgQzE5MSwxMzEuOSAxNzIuMSwxNTAgMTUwLDE1MCBaIiBmaWxsPSIjNzc3Ii8+PC9zdmc+';
+  itemElement.innerHTML = "<div class=\"relative\">\n                    <div class=\"w-full h-40 bg-neutral-100 overflow-hidden\">\n                        <img src=\"".concat(item.image || defaultImage, "\" \n                             alt=\"").concat(item.title, "\" \n                             class=\"w-full h-full object-cover transition-opacity duration-500").concat(item.image ? 'opacity-100' : 'opacity-50', "\">\n                    </div>\n                    <div class=\"absolute top-3 right-3\">\n                        <label class=\"inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-md cursor-pointer hover:bg-white transition-colors\">\n                            <input type=\"checkbox\" class=\"item-selector sr-only\" data-id=\"").concat(item.id, "\">\n                            <i class=\"fas fa-check text-primary opacity-0 transition-opacity\"></i>\n                        </label>\n                    </div>\n                    <div class=\"absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 text-white text-xs\">\n                        <div class=\"flex justify-between items-center\">\n                            <span><i class=\"fas fa-clock mr-1\"></i>").concat(item.date, "</span>\n                            <span><i class=\"fas fa-server mr-1\"></i>").concat(item.source, "</span>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"p-4\">\n                    <h3 class=\"font-medium text-neutral-800 mb-2 line-clamp-2 h-12\">\n                        <a href=\"").concat(item.url, "\" target=\"_blank\" class=\"hover:text-primary transition-colors\">").concat(item.title, "</a>\n                    </h3>\n                </div>");
+  elements.resultsGrid.appendChild(itemElement);
+
+  // 添加选择事件
+  var checkbox = itemElement.querySelector('.item-selector');
+  var checkIcon = itemElement.querySelector('.item-selector + i');
+  checkbox.addEventListener('change', function () {
+    var itemId = parseInt(this.dataset.id);
+    if (this.checked) {
+      collectionState.selectedItems.add(itemId);
+      checkIcon.classList.remove('opacity-0');
+      checkIcon.classList.add('opacity-100');
+      itemElement.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+    } else {
+      collectionState.selectedItems.delete(itemId);
+      checkIcon.classList.remove('opacity-100');
+      checkIcon.classList.add('opacity-0');
+      itemElement.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+    }
+    updateCounters();
+  });
+
+  // 图片加载失败时显示默认图片
+  var img = itemElement.querySelector('img');
+  if (item.image) {
+    img.addEventListener('error', function () {
+      this.src = defaultImage;
+      this.classList.add('opacity-50');
+    });
+  }
+}
+// 更新计数器
+function updateCounters() {
+  elements.collectedCount.textContent = "\u5DF2\u91C7\u96C6:".concat(collectionState.collectedItems.length);
+  elements.selectedCount.textContent = "\u5DF2\u9009\u62E9:".concat(collectionState.selectedItems.size);
+
+  // 控制保存按钮状态
+  elements.saveSelectedBtn.disabled = collectionState.selectedItems.size === 0;
+}
+  </script>
+  <!-- [/JSMOD] x3y_数据采集逻辑 -- 实现数据采集、停止采集功能，生成模拟数据并渲染到页面 -->
+  <!-- [JSMOD] z4a_数据选择与保存逻辑 -->
+  <script id="selection-save-logic">
+   // 保存选中的数据
+function saveSelectedData() {
+  if (collectionState.selectedItems.size === 0) return;
+
+  // 模拟保存到数据库的API调用
+  setTimeout(function () {
+    // 显示成功弹窗
+    var modal = elements.saveSuccessModal;
+    var modalContent = elements.modalContent;
+
+    // 更新成功消息
+    elements.saveSuccessMessage.textContent = "\u5DF2\u6210\u529F\u4FDD\u5B58".concat(collectionState.selectedItems.size, "\u6761\u6570\u636E\u5230\u6570\u636E\u5E93");
+
+    // 显示弹窗并添加动画
+    modal.classList.remove('hidden');
+    setTimeout(function () {
+      modalContent.classList.remove('scale-95', 'opacity-0');
+      modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+
+    // 清除选择状态
+    collectionState.selectedItems.clear();
+
+    // 更新UI
+    document.querySelectorAll('.item-selector:checked').forEach(function (checkbox) {
+      checkbox.checked = false;
+      var checkIcon = checkbox.nextElementSibling;
+      checkIcon.classList.remove('opacity-100');
+      checkIcon.classList.add('opacity-0');
+      var itemElement = checkbox.closest('.bg-white');
+      itemElement.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+    });
+    updateCounters();
+  }, 800); // 模拟API调用延迟
+}
+// 全选爬虫源
+function selectAllCrawlers() {
+  document.querySelectorAll('#crawler-sources input[type="checkbox"]').forEach(function (checkbox) {
+    if (!checkbox.checked) {
+      checkbox.checked = true;
+      var label = checkbox.parentElement.querySelector('.toggle-label');
+      label.classList.add('switch-checked');
+      label.classList.remove('switch-unchecked');
+    }
+  });
+}
+// 取消全选爬虫源
+function deselectAllCrawlers() {
+  document.querySelectorAll('#crawler-sources input[type="checkbox"]').forEach(function (checkbox) {
+    if (checkbox.checked) {
+      checkbox.checked = false;
+      var label = checkbox.parentElement.querySelector('.toggle-label');
+      label.classList.add('switch-unchecked');
+      label.classList.remove('switch-checked');
+    }
+  });
+}
+// 选择可见数据项
+function selectVisibleItems() {
+  var visibleItems = elements.resultsGrid.querySelectorAll('.item-selector:not(:checked)');
+  visibleItems.forEach(function (checkbox) {
+    checkbox.checked = true;
+    var itemId = parseInt(checkbox.dataset.id);
+    collectionState.selectedItems.add(itemId);
+    var checkIcon = checkbox.nextElementSibling;
+    checkIcon.classList.remove('opacity-0');
+    checkIcon.classList.add('opacity-100');
+    var itemElement = checkbox.closest('.bg-white');
+    itemElement.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+  });
+  updateCounters();
+}
+// 清除所有选择
+function clearAllSelected() {
+  collectionState.selectedItems.clear();
+  document.querySelectorAll('.item-selector:checked').forEach(function (checkbox) {
+    checkbox.checked = false;
+    var checkIcon = checkbox.nextElementSibling;
+    checkIcon.classList.remove('opacity-100');
+    checkIcon.classList.add('opacity-0');
+    var itemElement = checkbox.closest('.bg-white');
+    itemElement.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+  });
+  updateCounters();
+}
+// 关闭弹窗
+function closeModal() {
+  var modal = elements.saveSuccessModal;
+  var modalContent = elements.modalContent;
+  modalContent.classList.remove('scale-100', 'opacity-100');
+  modalContent.classList.add('scale-95', 'opacity-0');
+  setTimeout(function () {
+    modal.classList.add('hidden');
+  }, 300);
+}
+  </script>
+  <!-- [/JSMOD] z4a_数据选择与保存逻辑 -- 实现数据选择、保存选中数据功能，包括全选、取消全选、选择可见、清除选择等操作 -->
+  <!-- [JSMOD] b5c_事件监听绑定 -->
+  <script id="event-listeners">
+   // 绑定事件监听器
+function bindEventListeners() {
+  // 关键字输入框事件
+  elements.keywordInput.addEventListener('input', function () {
+    if (this.value.trim()) {
+      elements.keywordError.classList.add('hidden');
+      this.classList.remove('border-red-500');
+    }
+  });
+
+  // 按钮事件
+  elements.startCollectionBtn.addEventListener('click', startCollection);
+  elements.stopCollectionBtn.addEventListener('click', stopCollection);
+  elements.saveSelectedBtn.addEventListener('click', saveSelectedData);
+  elements.selectAllBtn.addEventListener('click', selectAllCrawlers);
+  elements.deselectAllBtn.addEventListener('click', deselectAllCrawlers);
+  elements.selectVisibleBtn.addEventListener('click', selectVisibleItems);
+  elements.clearSelectedBtn.addEventListener('click', clearAllSelected);
+  elements.closeModalBtn.addEventListener('click', closeModal);
+
+  // 点击模态框背景关闭
+  elements.saveSuccessModal.addEventListener('click', function (e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  // 阻止模态框内部点击事件冒泡
+  elements.modalContent.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  // 键盘事件 - ESC关闭模态框
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !elements.saveSuccessModal.classList.contains('hidden')) {
+      closeModal();
+    }
+
+    // Enter键开始采集
+    if (e.key === 'Enter' && !collectionState.isCollecting && document.activeElement === elements.keywordInput) {
+      startCollection();
+    }
+  });
+}
+// 页面加载完成后绑定事件监听器
+document.addEventListener('DOMContentLoaded', bindEventListeners);
+  </script>
+  <!-- [/JSMOD] b5c_事件监听绑定 -- 为页面元素绑定各种事件监听器，实现交互功能 -->
+ 
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          // 移除所有导航链接的激活状态
+          navLinks.forEach(l => {
+            l.classList.remove('active', 'bg-primary/20', 'border-l-4', 'border-primary');
+            l.classList.add('text-neutral-300', 'hover:text-white', 'hover:bg-neutral-700');
+          });
+          
+          // 添加当前导航链接的激活状态
+          this.classList.remove('text-neutral-300', 'hover:text-white', 'hover:bg-neutral-700');
+          this.classList.add('active', 'bg-primary/20', 'border-l-4', 'border-primary');
+          
+          // 这里可以添加页面切换逻辑，根据导航链接显示不同的页面内容
+          const pageName = this.querySelector('span').textContent.trim();
+          console.log('切换到页面:', pageName);
+        });
+      });
+    });
+  </script>
+  <!-- [/JSMOD] page_switch_页面切换功能 -- 实现侧边导航栏的页面切换功能 -->
+
+</body><!-- [JSMOD] page_switch_页面切换功能 --></html>

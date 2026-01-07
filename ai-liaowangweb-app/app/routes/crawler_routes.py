@@ -172,35 +172,40 @@ def start_collect():
         global collect_data, collect_status
         
         try:
-            # 获取选中的爬虫源
-            selected_crawlers = Crawler.query.filter(Crawler.id.in_(crawler_ids)).all()
+            # 导入app实例以创建应用上下文
+            from app import app
             
-            # 导入百度搜索爬虫
-            sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../dist/baidusearch')))
-            from search_app import search_baidu
-            
-            # 根据选择的爬虫源执行不同的采集逻辑
-            for crawler in selected_crawlers:
-                if crawler.type == 'baidu':
-                    # 执行百度搜索采集
-                    for i in range(1, 3):  # 假设采集2页数据
-                        results = search_baidu(keyword, i)
-                        for result in results:
-                            # 为每个结果添加唯一标识、时间戳、来源和关键字
-                            result['id'] = f"{int(time.time())}-{len(collect_data)}"
-                            result['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                            result['source'] = result.get('source', '百度搜索')
-                            result['keyword'] = keyword  # 添加关键字信息
-                            # 提取或生成封面图片
-                            result['cover_image'] = result.get('cover_image', 'https://neeko-copilot.bytedance.net/api/text2image?prompt=news%20article%20placeholder%20image&image_size=square')
-                            collect_data.append(result)
-                            collect_status['current'] += 1
-                            # 模拟采集延迟
-                            time.sleep(0.5)
-                else:
-                    # 其他类型爬虫的采集逻辑
-                    # 这里可以根据需要扩展其他爬虫源的采集逻辑
-                    pass
+            # 在应用上下文中执行数据库操作
+            with app.app_context():
+                # 获取选中的爬虫源
+                selected_crawlers = Crawler.query.filter(Crawler.id.in_(crawler_ids)).all()
+                
+                # 导入百度搜索爬虫
+                sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../dist/baidusearch')))
+                from search_app import search_baidu
+                
+                # 根据选择的爬虫源执行不同的采集逻辑
+                for crawler in selected_crawlers:
+                    if crawler.type == 'baidu':
+                        # 执行百度搜索采集
+                        for i in range(1, 3):  # 假设采集2页数据
+                            results = search_baidu(keyword, i)
+                            for result in results:
+                                # 为每个结果添加唯一标识、时间戳、来源和关键字
+                                result['id'] = f"{int(time.time())}-{len(collect_data)}"
+                                result['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                                result['source'] = result.get('source', '百度搜索')
+                                result['keyword'] = keyword  # 添加关键字信息
+                                # 提取或生成封面图片
+                                result['cover_image'] = result.get('cover_image', 'https://neeko-copilot.bytedance.net/api/text2image?prompt=news%20article%20placeholder%20image&image_size=square')
+                                collect_data.append(result)
+                                collect_status['current'] += 1
+                                # 模拟采集延迟
+                                time.sleep(0.5)
+                    else:
+                        # 其他类型爬虫的采集逻辑
+                        # 这里可以根据需要扩展其他爬虫源的采集逻辑
+                        pass
             
             collect_status['running'] = False
             collect_status['total'] = len(collect_data)

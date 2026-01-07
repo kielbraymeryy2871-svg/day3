@@ -26,15 +26,26 @@ def test_baidu_search():
             # 搜索第一页
             print("正在发送请求...")
             # 设置最大执行时间为30秒
-            import signal
-            def timeout_handler(signum, frame):
+            import threading
+            results = None
+            error = None
+            
+            def search_task():
+                nonlocal results, error
+                try:
+                    results = search_app.search_baidu(keyword, page=1)
+                except Exception as e:
+                    error = e
+            
+            thread = threading.Thread(target=search_task)
+            thread.daemon = True
+            thread.start()
+            thread.join(30)  # 等待最多30秒
+            
+            if thread.is_alive():
                 raise TimeoutError("搜索超时")
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(30)
-            
-            results = search_app.search_baidu(keyword, page=1)
-            
-            signal.alarm(0)  # 取消超时设置
+            if error:
+                raise error
             end_time = time.time()
             print(f"请求完成，耗时: {end_time - start_time:.2f}秒")
             print(f"返回了 {len(results)} 条结果")

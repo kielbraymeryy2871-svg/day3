@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 from app.models.user import User
+from app.models.crawler import Crawler
 
 main = Blueprint('main', __name__)
 
@@ -36,4 +37,6 @@ def logout():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    # 获取所有可用的爬虫源
+    crawlers = Crawler.query.filter_by(status='active').all()
+    return render_template('dashboard.html', crawlers=crawlers)

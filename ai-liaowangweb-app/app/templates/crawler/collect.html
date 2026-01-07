@@ -1,87 +1,232 @@
 {% extends "base.html" %}
 
-{% block title %}采集管理{% endblock %}
+{% block title %}数据采集管理{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">采集管理</h1>
+<style>
+    @layer utilities {
+        .content-auto {
+            content-visibility: auto;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .card-hover {
+            @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+        }
+        .switch-checked {
+            @apply bg-primary;
+        }
+        .switch-unchecked {
+            @apply bg-neutral-300;
+        }
+        .btn-primary {
+            @apply bg-primary text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-primary/90 active:scale-100 shadow-md hover:shadow-lg;
+        }
+        .btn-secondary {
+            @apply bg-neutral-700 text-white border border-neutral-500 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-neutral-600 active:scale-100;
+        }
+    }
+</style>
+
+<div class="bg-neutral-800 rounded-xl shadow-card p-6 md:p-8" id="collection-management">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+        <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-white mb-2">
+            数据采集管理
+        </h1>
+        <p class="text-neutral-300">
+            输入关键字，选择爬虫源，开始定向采集数据
+        </p>
+    </div>
     
-    <!-- 关键字输入框和开始采集按钮 -->
-    <div class="card mb-5 shadow-sm border-0">
-        <div class="card-body p-5">
-            <form id="collect-form" method="POST">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-group">
-                            <label for="keyword" class="form-label fw-semibold">采集关键字</label>
-                            <input type="text" class="form-control form-control-lg border-2" id="keyword" name="keyword" placeholder="请输入要采集的关键字，例如：人工智能" required>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block shadow-sm hover:shadow">
-                            <i class="bi bi-search"></i> 开始采集
-                        </button>
-                    </div>
+    <!-- 关键字输入区 -->
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <label class="block text-sm font-medium text-white mb-1" for="keyword">
+                    采集关键字
+                </label>
+                <div class="relative">
+                    <input class="w-full px-4 py-3 pl-10 pr-40 rounded-lg border border-neutral-600 bg-neutral-700 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-300 placeholder:text-neutral-400" id="keyword" name="keyword" placeholder="请输入需要采集的关键字..." required>
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                    </i>
                 </div>
-            </form>
+            </div>
+            <div class="flex items-end gap-3">
+                <button type="submit" class="btn-primary flex items-center gap-2" id="start-collection">
+                    <i class="fas fa-play">
+                    </i>
+                    <span>
+                        开始采集
+                    </span>
+                </button>
+                <button class="btn-secondary flex items-center gap-2" disabled="" id="stop-collection">
+                    <i class="fas fa-stop">
+                    </i>
+                    <span>
+                        停止采集
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="hidden mt-2 text-red-500 text-sm flex items-center gap-1" id="keyword-error">
+            <i class="fas fa-exclamation-circle">
+            </i>
+            <span>
+                请输入有效的关键字
+            </span>
         </div>
     </div>
     
     <!-- 爬虫源选择开关面板 -->
-    <div class="card mb-5 shadow-sm border-0">
-        <div class="card-header bg-white border-0 p-4">
-            <h5 class="mb-0 fw-semibold">爬虫源选择</h5>
-        </div>
-        <div class="card-body p-5">
-            <div class="crawler-sources d-flex flex-wrap gap-3">
-                {% if crawlers %}
-                    {% for crawler in crawlers %}
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input rounded border-2" type="checkbox" id="crawler-{{ crawler.id }}" name="crawler_ids" value="{{ crawler.id }}">
-                            <label class="form-check-label ms-2" for="crawler-{{ crawler.id }}">{{ crawler.name }} <span class="text-muted">({{ crawler.type }})</span></label>
+    <div class="mb-8 p-5 bg-neutral-700 rounded-lg">
+        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-white">
+            <i class="fas fa-cogs text-primary">
+            </i>
+            <span>
+                爬虫源选择
+            </span>
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="crawler-sources">
+            {% if crawlers %}
+                {% for crawler in crawlers %}
+                    <div class="flex items-center justify-between p-3 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
+                        <div>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <div class="relative inline-block w-10 h-5 mr-2 align-middle select-none transition duration-300 ease-in-out">
+                                    <input type="checkbox" id="crawler-{{ crawler.id }}" name="crawler_ids" value="{{ crawler.id }}" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary" checked>
+                                    <label for="crawler-{{ crawler.id }}" class="toggle-label block overflow-hidden h-5 rounded-full bg-neutral-300 cursor-pointer transition-all duration-300"></label>
+                                </div>
+                                <span class="font-medium">{{ crawler.name }}</span>
+                            </label>
+                            <p class="text-xs text-neutral-500 mt-0.5">{{ crawler.description or crawler.type }}</p>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">暂无可用的爬虫源，请先在爬虫管理中添加并激活爬虫</p>
-                {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-full text-center py-4 text-neutral-400">
+                    <p>暂无可用的爬虫源，请先在爬虫管理中添加并激活爬虫</p>
+                </div>
+            {% endif %}
+        </div>
+        {% if crawlers %}
+            <div class="mt-4 flex items-center justify-between">
+                <button class="text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1" id="select-all">
+                    <i class="fas fa-check-square">
+                    </i>
+                    <span>
+                        全选
+                    </span>
+                </button>
+                <button class="text-sm text-neutral-500 hover:text-neutral-700 transition-colors flex items-center gap-1" id="deselect-all">
+                    <i class="fas fa-square">
+                    </i>
+                    <span>
+                        取消全选
+                    </span>
+                </button>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- 采集状态显示区 -->
+    <div class="mb-6 hidden" id="collection-status">
+        <div class="flex items-center justify-between bg-primary/20 border border-primary/30 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-primary animate-pulse">
+                </div>
+                <span class="font-medium">
+                    正在采集数据...
+                </span>
+            </div>
+            <div class="text-sm text-neutral-300">
+                <span id="collected-count">
+                    已采集: 0
+                </span>
+                |
+                <span id="selected-count">
+                    已选择: 0
+                </span>
             </div>
         </div>
     </div>
     
-    <!-- 采集状态和保存按钮 -->
-    <div class="card mb-5 shadow-sm border-0">
-        <div class="card-body p-5">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div id="collect-status" class="text-muted h5">
-                        准备就绪
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <button id="save-selected" class="btn btn-success btn-lg shadow-sm hover:shadow" disabled>
-                        <i class="bi bi-save"></i> 保存选中数据
-                    </button>
-                </div>
+    <!-- 数据操作区 -->
+    <div class="mb-6 hidden" id="data-actions">
+        <div class="flex justify-between items-center">
+            <button class="btn-primary flex items-center gap-2" id="save-selected">
+                <i class="fas fa-save">
+                </i>
+                <span>
+                    保存选中数据
+                </span>
+            </button>
+            <div class="flex gap-2">
+                <button class="btn-secondary text-sm px-3 py-1.5" id="select-visible">
+                    <i class="fas fa-check">
+                    </i>
+                    选择可见
+                </button>
+                <button class="btn-secondary text-sm px-3 py-1.5" id="clear-selected">
+                    <i class="fas fa-times">
+                    </i>
+                    清除选择
+                </button>
             </div>
         </div>
     </div>
     
     <!-- 橱窗数据列表 -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white border-0 p-4">
-            <h5 class="mb-0 fw-semibold">采集数据</h5>
-        </div>
-        <div class="card-body p-5">
-            <div id="collect-data-list" class="row gap-4">
-                <!-- 数据将通过JavaScript动态添加 -->
-                <div class="col-12 text-center py-10 text-muted">
-                    <div class="mb-4">
-                        <i class="bi bi-database text-5xl text-muted"></i>
-                    </div>
-                    <p class="h5">尚未开始采集数据</p>
-                    <p class="text-muted">请输入关键字并选择爬虫源后开始采集</p>
-                </div>
+    <div class="mt-8" id="collection-results">
+        <div class="py-20 text-center" id="empty-state">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-700 mb-4">
+                <i class="fas fa-search text-2xl text-neutral-300">
+                </i>
             </div>
+            <h3 class="text-lg font-medium text-white mb-1">
+                暂无采集数据
+            </h3>
+            <p class="text-neutral-300 max-w-md mx-auto">
+                输入关键字，选择爬虫源，点击"开始采集"按钮开始采集数据
+            </p>
+        </div>
+        <div class="py-20 text-center hidden" id="loading-state">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4">
+            </div>
+            <h3 class="text-lg font-medium text-white">
+                正在准备采集...
+            </h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden" id="results-grid">
+            <!-- 采集结果将通过JS动态生成 -->
+        </div>
+    </div>
+</div>
+
+<!-- 保存成功提示弹窗 -->
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden" id="save-success-modal">
+    <div class="bg-neutral-800 rounded-xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-500">
+                </i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">
+                保存成功
+            </h3>
+            <p class="text-neutral-300 mb-6" id="save-success-message">
+                已成功保存选中的数据到数据库
+            </p>
+            <button class="btn-primary w-full" id="close-modal">
+                <i class="fas fa-check-circle">
+                </i>
+                确认
+            </button>
         </div>
     </div>
 </div>
@@ -94,16 +239,48 @@
     
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
-        // 绑定表单提交事件
-        document.getElementById('collect-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // 绑定开始采集按钮点击事件
+        document.getElementById('start-collection').addEventListener('click', function() {
             startCollect();
+        });
+        
+        // 绑定停止采集按钮点击事件
+        document.getElementById('stop-collection').addEventListener('click', function() {
+            stopCollect();
         });
         
         // 绑定保存按钮点击事件
         document.getElementById('save-selected').addEventListener('click', function() {
             saveSelectedData();
         });
+        
+        // 绑定全选按钮点击事件
+        document.getElementById('select-all').addEventListener('click', function() {
+            selectAllCrawlers(true);
+        });
+        
+        // 绑定取消全选按钮点击事件
+        document.getElementById('deselect-all').addEventListener('click', function() {
+            selectAllCrawlers(false);
+        });
+        
+        // 绑定选择可见按钮点击事件
+        document.getElementById('select-visible').addEventListener('click', function() {
+            selectVisibleData();
+        });
+        
+        // 绑定清除选择按钮点击事件
+        document.getElementById('clear-selected').addEventListener('click', function() {
+            clearSelectedData();
+        });
+        
+        // 绑定关闭弹窗按钮点击事件
+        document.getElementById('close-modal').addEventListener('click', function() {
+            closeModal();
+        });
+        
+        // 初始化开关状态
+        initToggleSwitches();
         
         // 定期获取采集数据和状态
         setInterval(function() {
@@ -113,15 +290,62 @@
         }, 1000);
     });
     
+    // 初始化开关状态
+    function initToggleSwitches() {
+        const checkboxes = document.querySelectorAll('.toggle-checkbox');
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.nextElementSibling;
+            if (checkbox.checked) {
+                label.classList.add('switch-checked');
+                label.classList.remove('switch-unchecked');
+            } else {
+                label.classList.add('switch-unchecked');
+                label.classList.remove('switch-checked');
+            }
+            
+            // 绑定开关切换事件
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    label.classList.add('switch-checked');
+                    label.classList.remove('switch-unchecked');
+                } else {
+                    label.classList.add('switch-unchecked');
+                    label.classList.remove('switch-checked');
+                }
+            });
+        });
+    }
+    
+    // 全选/取消全选爬虫源
+    function selectAllCrawlers(select) {
+        const checkboxes = document.querySelectorAll('.toggle-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = select;
+            const label = checkbox.nextElementSibling;
+            if (select) {
+                label.classList.add('switch-checked');
+                label.classList.remove('switch-unchecked');
+            } else {
+                label.classList.add('switch-unchecked');
+                label.classList.remove('switch-checked');
+            }
+        });
+    }
+    
     // 开始采集
     function startCollect() {
         const keyword = document.getElementById('keyword').value;
         const crawlerCheckboxes = document.querySelectorAll('input[name="crawler_ids"]:checked');
         const crawlerIds = Array.from(crawlerCheckboxes).map(cb => cb.value);
         
+        // 验证输入
         if (!keyword) {
-            alert('请输入关键字');
+            const errorElement = document.getElementById('keyword-error');
+            errorElement.classList.remove('hidden');
             return;
+        } else {
+            const errorElement = document.getElementById('keyword-error');
+            errorElement.classList.add('hidden');
         }
         
         if (crawlerIds.length === 0) {
@@ -129,10 +353,14 @@
             return;
         }
         
-        // 显示加载状态
-        document.getElementById('collect-status').innerHTML = '<span class="text-primary">采集ing...</span>';
-        document.getElementById('collect-data-list').innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">正在采集数据，请稍候...</p></div>';
-        document.getElementById('save-selected').disabled = true;
+        // 更新UI状态
+        document.getElementById('start-collection').disabled = true;
+        document.getElementById('stop-collection').disabled = false;
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('collection-status').classList.remove('hidden');
+        document.getElementById('collected-count').textContent = '已采集: 0';
+        document.getElementById('selected-count').textContent = '已选择: 0';
         
         // 发送请求开始采集
         fetch('/crawler/collect/start', {
@@ -154,14 +382,33 @@
                 fetchCollectData();
             } else {
                 alert(data.message);
-                document.getElementById('collect-status').textContent = '准备就绪';
+                resetUIState();
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('采集开始失败');
-            document.getElementById('collect-status').textContent = '准备就绪';
+            resetUIState();
         });
+    }
+    
+    // 停止采集
+    function stopCollect() {
+        isRunning = false;
+        resetUIState();
+        alert('采集已停止');
+    }
+    
+    // 重置UI状态
+    function resetUIState() {
+        document.getElementById('start-collection').disabled = false;
+        document.getElementById('stop-collection').disabled = true;
+        document.getElementById('loading-state').classList.add('hidden');
+        if (collectData.length === 0) {
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('collection-status').classList.add('hidden');
+            document.getElementById('data-actions').classList.add('hidden');
+        }
     }
     
     // 获取采集数据
@@ -174,19 +421,24 @@
             
             // 更新状态
             if (status.running) {
-                document.getElementById('collect-status').innerHTML = `<span class="text-primary">采集ing... (${status.current} 条)</span>`;
+                document.getElementById('collected-count').textContent = `已采集: ${status.current || 0}`;
             } else {
                 isRunning = false;
+                document.getElementById('start-collection').disabled = false;
+                document.getElementById('stop-collection').disabled = true;
                 if (status.error) {
-                    document.getElementById('collect-status').innerHTML = `<span class="text-danger">采集失败: ${status.error}</span>`;
+                    alert(`采集失败: ${status.error}`);
                 } else {
-                    document.getElementById('collect-status').innerHTML = `<span class="text-success">采集完成 (共 ${status.total} 条)</span>`;
+                    document.getElementById('collected-count').textContent = `已采集: ${status.total || 0}`;
                 }
             }
             
             // 更新数据列表
             if (newData.length > 0) {
-                renderCollectData(newData);
+                // 过滤重复数据
+                const uniqueData = filterUniqueData(newData);
+                collectData = uniqueData;
+                renderCollectData(uniqueData);
                 // 自动滚动到最新位置
                 autoScrollToBottom();
             }
@@ -196,66 +448,113 @@
         });
     }
     
+    // 过滤重复数据
+    function filterUniqueData(data) {
+        const seen = new Set();
+        return data.filter(item => {
+            const key = item.title + item.url;
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+    }
+    
     // 渲染采集数据
     function renderCollectData(data) {
-        const container = document.getElementById('collect-data-list');
+        const container = document.getElementById('results-grid');
+        const emptyState = document.getElementById('empty-state');
+        const loadingState = document.getElementById('loading-state');
+        const dataActions = document.getElementById('data-actions');
         
         if (data.length === 0) {
-            container.innerHTML = '<div class="col-12 text-center py-5 text-muted">尚未开始采集数据</div>';
+            emptyState.classList.remove('hidden');
+            loadingState.classList.add('hidden');
+            container.classList.add('hidden');
+            dataActions.classList.add('hidden');
             return;
         }
+        
+        // 显示结果网格
+        emptyState.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        container.classList.remove('hidden');
+        dataActions.classList.remove('hidden');
         
         // 清空容器
         container.innerHTML = '';
         
         // 添加数据项
         data.forEach(item => {
-            const col = document.createElement('div');
-            col.className = 'col-md-4 mb-4';
+            const card = document.createElement('div');
+            card.className = 'bg-neutral-700 rounded-lg overflow-hidden shadow-card card-hover';
             
-            col.innerHTML = `
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-img-top" style="height: 180px; overflow: hidden; background-color: #f8f9fa;">
-                        <img src="${item.cover_image}" class="img-fluid w-100 h-100 object-fit-cover rounded-top" alt="封面图片">
+            // 设置封面图片
+            const coverImage = item.cover_image || 'https://design.gemcoder.com/api/searchImage?query=news%20article%20placeholder%20image&image_size=square';
+            
+            card.innerHTML = `
+                <div class="relative h-48 overflow-hidden">
+                    <img src="${coverImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    <div class="absolute top-3 right-3">
+                        <input type="checkbox" id="data-${item.id}" value="${item.id}" class="w-5 h-5 rounded border-neutral-300 text-primary focus:ring-primary">
                     </div>
-                    <div class="card-body p-4">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="data-${item.id}" value="${item.id}">
-                            <label class="form-check-label" for="data-${item.id}">选择</label>
-                        </div>
-                        <h5 class="card-title mb-3">
-                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="text-dark hover:text-primary text-decoration-none">${item.title}</a>
-                        </h5>
-                        <p class="card-text text-muted mb-4" style="min-height: 60px;">${item.abstract || ''}</p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-sm text-muted">${item.source || ''}</span>
-                            <span class="text-sm text-muted">${item.timestamp || ''}</span>
-                        </div>
-                        <div class="mt-2">
-                            <span class="text-xs text-dark font-medium bg-info bg-opacity-10 px-3 py-1 rounded-full">${item.keyword || ''}</span>
-                        </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold mb-2 line-clamp-2">
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="text-white hover:text-primary transition-colors">${item.title}</a>
+                    </h3>
+                    <p class="text-neutral-300 text-sm mb-4 line-clamp-3">${item.abstract || ''}</p>
+                    <div class="flex justify-between items-center text-xs text-neutral-400 mb-3">
+                        <span>${item.source || ''}</span>
+                        <span>${item.timestamp || ''}</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs text-white font-medium bg-primary bg-opacity-20 px-3 py-1 rounded-full">${item.keyword || ''}</span>
                     </div>
                 </div>
             `;
             
-            container.appendChild(col);
+            container.appendChild(card);
         });
         
-        // 启用保存按钮
-        document.getElementById('save-selected').disabled = false;
-        
-        // 绑定复选框事件，更新保存按钮状态
+        // 绑定复选框事件，更新选择计数
         const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]');
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSaveButtonStatus);
+            checkbox.addEventListener('change', updateSelectedCount);
         });
+        
+        // 更新选择计数
+        updateSelectedCount();
     }
     
-    // 更新保存按钮状态
-    function updateSaveButtonStatus() {
+    // 更新选择计数
+    function updateSelectedCount() {
         const checkedBoxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]:checked');
+        const selectedCount = checkedBoxes.length;
+        document.getElementById('selected-count').textContent = `已选择: ${selectedCount}`;
+        
+        // 更新保存按钮状态
         const saveButton = document.getElementById('save-selected');
-        saveButton.disabled = checkedBoxes.length === 0;
+        saveButton.disabled = selectedCount === 0;
+    }
+    
+    // 选择可见数据
+    function selectVisibleData() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateSelectedCount();
+    }
+    
+    // 清除选择
+    function clearSelectedData() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateSelectedCount();
     }
     
     // 保存选中的数据
@@ -271,7 +570,7 @@
         // 显示加载状态
         const saveButton = document.getElementById('save-selected');
         const originalText = saveButton.innerHTML;
-        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 保存中...';
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>保存中...</span>';
         saveButton.disabled = true;
         
         // 发送请求保存数据
@@ -287,9 +586,9 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                alert(data.message);
+                showSuccessModal(data.message || '已成功保存选中的数据到数据库');
             } else {
-                alert(data.message);
+                alert(data.message || '保存失败');
             }
         })
         .catch(error => {
@@ -298,20 +597,52 @@
         })
         .finally(() => {
             saveButton.innerHTML = originalText;
-            updateSaveButtonStatus();
+            updateSelectedCount();
         });
+    }
+    
+    // 显示成功弹窗
+    function showSuccessModal(message) {
+        const modal = document.getElementById('save-success-modal');
+        const modalContent = document.getElementById('modal-content');
+        const messageElement = document.getElementById('save-success-message');
+        
+        messageElement.textContent = message;
+        modal.classList.remove('hidden');
+        
+        // 添加动画效果
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+    
+    // 关闭弹窗
+    function closeModal() {
+        const modal = document.getElementById('save-success-modal');
+        const modalContent = document.getElementById('modal-content');
+        
+        // 添加关闭动画效果
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
     }
     
     // 自动滚动到最新位置
     function autoScrollToBottom() {
-        const container = document.getElementById('collect-data-list');
-        const currentScrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
-        
-        // 如果用户没有手动滚动，或者已经滚动到底部附近，则自动滚动
-        if (currentScrollTop + clientHeight >= scrollHeight - 100) {
-            container.scrollTop = scrollHeight;
+        const container = document.getElementById('results-grid');
+        if (container) {
+            const currentScrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+            
+            // 如果用户没有手动滚动，或者已经滚动到底部附近，则自动滚动
+            if (currentScrollTop + clientHeight >= scrollHeight - 100) {
+                container.scrollTop = scrollHeight;
+            }
         }
     }
 </script>
