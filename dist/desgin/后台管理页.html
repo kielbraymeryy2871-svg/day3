@@ -1,0 +1,792 @@
+<html lang='zh-CN'>
+        <head >
+        <meta charset='UTF-8'/>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+<title >AI智能政企望舆情数据采集与分析系统</title>
+<script src='https://res.gemcoder.com/js/reload.js'></script>
+<script src='https://cdn.tailwindcss.com'></script>
+<link href='https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+<script src='https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js'></script>
+<script >tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#165DFF',
+        secondary: '#0FC6C2',
+        accent: '#722ED1',
+        dark: '#1D2129',
+        'dark-light': '#272E3B',
+        'gray-custom': '#86909C',
+        'light-gray': '#F2F3F5'
+      },
+      fontFamily: {
+        inter: ['Inter', 'sans-serif']
+      },
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem'
+      },
+      boxShadow: {
+        'glow': '0 0 15px rgba(22, 93, 255, 0.5)',
+        'glow-lg': '0 0 25px rgba(22, 93, 255, 0.7)'
+      }
+    }
+  }
+};</script>
+<style type='text/tailwindcss'>
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 0 8px rgba(22, 93, 255, 0.5);
+            }
+            .bg-grid {
+                background-image: radial-gradient(rgba(22, 93, 255, 0.1) 1px, transparent 1px);
+                background-size: 20px 20px;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+            }
+            .sidebar-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300;
+            }
+            .sidebar-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .sidebar-item:not(.active):hover {
+                @apply bg-dark-light;
+            }
+            .stat-card {
+                @apply bg-dark-light rounded-xl p-5 card-hover border border-primary/20;
+            }
+            .stat-value {
+                @apply text-3xl md:text-4xl font-bold text-white mt-2;
+            }
+            .stat-label {
+                @apply text-gray-custom text-sm uppercase tracking-wider;
+            }
+            .stat-icon {
+                @apply w-10 h-10 rounded-lg flex items-center justify-center;
+            }
+            .status-indicator {
+                @apply w-3 h-3 rounded-full inline-block mr-2;
+            }
+            .status-online {
+                @apply bg-green-500 animate-pulse;
+            }
+            .status-offline {
+                @apply bg-red-500;
+            }
+            .status-warning {
+                @apply bg-yellow-500;
+            }
+        }
+    </style>
+    </head>
+<body class='bg-dark text-white font-inter min-h-screen flex flex-col'>
+        <!-- [MODULE] a1b_主内容区域 -->
+<div class='flex flex-col md:flex-row h-screen overflow-hidden'>
+        <!-- [MODULE] c3d_侧边导航栏 -->
+<aside id='sidebar' class='bg-dark-light w-full md:w-64 flex-shrink-0 transition-all duration-300 z-20 md:translate-x-0 transform -translate-x-full md:static fixed md:relative h-full'>
+        <div class='flex items-center justify-between p-4 border-b border-primary/20'>
+        <div class='flex items-center gap-3'>
+        <div class='w-10 h-10 rounded-lg bg-primary flex items-center justify-center'>
+        <i class='fas fa-brain text-white text-xl'>
+        </i>
+    </div>
+<h1 class='text-xl font-bold text-white hidden md:block yt-editor' contenteditable='false' style='outline: none;'>
+        AI政企瞭望
+    </h1>
+    </div>
+<button id='close-sidebar' class='md:hidden text-gray-custom hover:text-white'>
+        <i class='fas fa-times'>
+        </i>
+    </button>
+    </div>
+<nav class='p-4 overflow-y-auto h-[calc(100%-64px)] scrollbar-hide'>
+        <p class='text-xs uppercase text-gray-custom tracking-wider mb-3 px-4'>
+        主菜单
+    </p>
+<a href='javascript:void(0);' class='sidebar-item active'>
+        <i class='fas fa-tachometer-alt w-5 text-center'>
+        </i>
+<span >
+        后台主页
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-database w-5 text-center'>
+        </i>
+<span >
+        采集管理
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-spider w-5 text-center'>
+        </i>
+<span >
+        爬虫管理
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-table w-5 text-center'>
+        </i>
+<span >
+        数据管理
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-search-plus w-5 text-center'>
+        </i>
+<span >
+        深采管理
+    </span>
+    </a>
+<p class='text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4'>
+        AI功能
+    </p>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-cogs w-5 text-center'>
+        </i>
+<span >
+        AI模型管理
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-file-alt w-5 text-center'>
+        </i>
+<span >
+        AI分析与报告
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-chart-line w-5 text-center'>
+        </i>
+<span >
+        AI数智大屏
+    </span>
+    </a>
+<p class='text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4'>
+        系统
+    </p>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-cog w-5 text-center'>
+        </i>
+<span >
+        系统设置
+    </span>
+    </a>
+<a href='javascript:void(0);' class='sidebar-item'>
+        <i class='fas fa-user-circle w-5 text-center'>
+        </i>
+<span >
+        用户中心
+    </span>
+    </a>
+    </nav>
+    </aside>
+<!-- [/MODULE] c3d_侧边导航栏 -- 包含系统所有功能模块的导航链接，在移动端可折叠 -->
+<!-- [MODULE] e5f_主内容区域 -->
+<div class='flex-1 flex flex-col overflow-hidden'>
+        <!-- [MODULE] g7h_顶部导航栏 -->
+<header class='bg-dark-light border-b border-primary/20 h-16 flex items-center justify-between px-4 md:px-6 z-10'>
+        <div class='flex items-center gap-4'>
+        <button id='toggle-sidebar' class='md:hidden text-gray-custom hover:text-white'>
+        <i class='fas fa-bars'>
+        </i>
+    </button>
+<div class='relative hidden md:block'>
+        <input type='text' placeholder='搜索...' class='bg-dark rounded-lg py-2 pl-10 pr-4 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/50'/>
+<i class='fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-custom'>
+        </i>
+    </div>
+    </div>
+<div class='flex items-center gap-4'>
+        <button class='relative text-gray-custom hover:text-white'>
+        <i class='fas fa-bell text-xl'>
+        </i>
+<span class='absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center'>
+        3
+    </span>
+    </button>
+<div class='flex items-center gap-3'>
+        <img src='https://design.gemcoder.com/staticResource/echoAiSystemImages/54a1fb7390ddbe8fc2354c0ff6abec22.png' alt='用户头像' class='w-8 h-8 rounded-full object-cover border-2 border-primary/50'/>
+<div class='hidden md:block'>
+        <p class='text-sm font-medium'>
+        管理员
+    </p>
+<p class='text-xs text-gray-custom'>
+        系统管理员
+    </p>
+    </div>
+    </div>
+    </div>
+    </header>
+<!-- [/MODULE] g7h_顶部导航栏 -- 包含侧边栏切换按钮、搜索框、通知图标和用户信息 -->
+<!-- [MODULE] i9j_后台主页 -->
+<main class='flex-1 overflow-y-auto bg-grid p-4 md:p-6'>
+        <!-- [MODULE] k0l_后台主页:页面标题 -->
+<div class='mb-8'>
+        <h2 class='text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white text-shadow'>
+        系统概览
+    </h2>
+<p class='text-gray-custom mt-1'>
+        实时监控系统运行状态和数据统计
+    </p>
+    </div>
+<!-- [/MODULE] k0l_后台主页:页面标题 -- 包含页面标题和描述文字 -->
+<!-- [MODULE] m2n_后台主页:数据统计卡片 -->
+<div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8'>
+        <!-- 总数据量卡片 -->
+<div class='stat-card'>
+        <div class='flex justify-between items-start'>
+        <div >
+        <p class='stat-label'>
+        总数据量
+    </p>
+<p class='stat-value'>
+        128.5万
+    </p>
+<p class='text-green-500 text-sm mt-1 flex items-center'>
+        <i class='fas fa-arrow-up mr-1'>
+        </i>
+12.5%
+<span class='text-gray-custom ml-1'>
+        较上月
+    </span>
+    </p>
+    </div>
+<div class='stat-icon bg-primary/20 text-primary'>
+        <i class='fas fa-database text-xl'>
+        </i>
+    </div>
+    </div>
+    </div>
+<!-- 总爬虫量卡片 -->
+<div class='stat-card'>
+        <div class='flex justify-between items-start'>
+        <div >
+        <p class='stat-label'>
+        总爬虫量
+    </p>
+<p class='stat-value'>
+        32
+    </p>
+<p class='text-green-500 text-sm mt-1 flex items-center'>
+        <i class='fas fa-arrow-up mr-1'>
+        </i>
+3
+<span class='text-gray-custom ml-1'>
+        新增
+    </span>
+    </p>
+    </div>
+<div class='stat-icon bg-secondary/20 text-secondary'>
+        <i class='fas fa-spider text-xl'>
+        </i>
+    </div>
+    </div>
+    </div>
+<!-- AI引擎状态卡片 -->
+<div class='stat-card'>
+        <div class='flex justify-between items-start'>
+        <div >
+        <p class='stat-label'>
+        AI引擎状态
+    </p>
+<p class='stat-value flex items-center'>
+        <span class='status-indicator status-online'>
+        </span>
+运行中
+    </p>
+<p class='text-gray-custom text-sm mt-1'>
+        负载: 68%
+    </p>
+    </div>
+<div class='stat-icon bg-accent/20 text-accent'>
+        <i class='fas fa-brain text-xl'>
+        </i>
+    </div>
+    </div>
+    </div>
+<!-- 系统状态卡片 -->
+<div class='stat-card'>
+        <div class='flex justify-between items-start'>
+        <div >
+        <p class='stat-label'>
+        系统状态
+    </p>
+<p class='stat-value flex items-center'>
+        <span class='status-indicator status-online'>
+        </span>
+正常
+    </p>
+<p class='text-gray-custom text-sm mt-1'>
+        运行时间: 128天
+    </p>
+    </div>
+<div class='stat-icon bg-green-500/20 text-green-500'>
+        <i class='fas fa-server text-xl'>
+        </i>
+    </div>
+    </div>
+    </div>
+    </div>
+<!-- [/MODULE] m2n_后台主页:数据统计卡片 -- 包含总数据量、总爬虫量、AI引擎状态和系统状态四个统计卡片，每个卡片显示相应数据和趋势 -->
+<!-- [MODULE] p3q_后台主页:图表区域 -->
+<div class='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
+        <!-- 数据增长趋势图 -->
+<div class='lg:col-span-2 bg-dark-light rounded-xl p-5 border border-primary/20'>
+        <div class='flex justify-between items-center mb-6'>
+        <h3 class='font-semibold text-lg'>
+        数据增长趋势
+    </h3>
+<div class='flex gap-2'>
+        <button class='px-3 py-1 text-xs bg-primary/10 text-primary rounded-lg'>
+        日
+    </button>
+<button class='px-3 py-1 text-xs bg-dark rounded-lg text-gray-custom'>
+        周
+    </button>
+<button class='px-3 py-1 text-xs bg-dark rounded-lg text-gray-custom'>
+        月
+    </button>
+    </div>
+    </div>
+<div id='data-trend-chart' class='w-full h-80'>
+        </div>
+    </div>
+<!-- 数据来源分布 -->
+<div class='bg-dark-light rounded-xl p-5 border border-primary/20'>
+        <h3 class='font-semibold text-lg mb-6'>
+        数据来源分布
+    </h3>
+<div id='data-source-chart' class='w-full h-80'>
+        </div>
+    </div>
+    </div>
+<!-- [/MODULE] p3q_后台主页:图表区域 -- 包含数据增长趋势图和数据来源分布图两个图表，展示系统数据的变化趋势和来源分布情况 -->
+<!-- [MODULE] r4s_后台主页:系统状态和任务列表 -->
+<div class='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        <!-- 系统资源状态 -->
+<div class='bg-dark-light rounded-xl p-5 border border-primary/20'>
+        <h3 class='font-semibold text-lg mb-4'>
+        系统资源状态
+    </h3>
+<div class='space-y-6'>
+        <div >
+        <div class='flex justify-between mb-2'>
+        <span class='text-sm text-gray-custom'>
+        CPU 使用率
+    </span>
+<span class='text-sm font-medium'>
+        42%
+    </span>
+    </div>
+<div class='w-full bg-dark rounded-full h-2'>
+        <div class='bg-primary h-2 rounded-full' style='width: 42%'>
+        </div>
+    </div>
+    </div>
+<div >
+        <div class='flex justify-between mb-2'>
+        <span class='text-sm text-gray-custom'>
+        内存 使用率
+    </span>
+<span class='text-sm font-medium'>
+        68%
+    </span>
+    </div>
+<div class='w-full bg-dark rounded-full h-2'>
+        <div class='bg-secondary h-2 rounded-full' style='width: 68%'>
+        </div>
+    </div>
+    </div>
+<div >
+        <div class='flex justify-between mb-2'>
+        <span class='text-sm text-gray-custom'>
+        磁盘 使用率
+    </span>
+<span class='text-sm font-medium'>
+        35%
+    </span>
+    </div>
+<div class='w-full bg-dark rounded-full h-2'>
+        <div class='bg-accent h-2 rounded-full' style='width: 35%'>
+        </div>
+    </div>
+    </div>
+<div >
+        <div class='flex justify-between mb-2'>
+        <span class='text-sm text-gray-custom'>
+        网络 流量
+    </span>
+<span class='text-sm font-medium'>
+        1.2 GB/s
+    </span>
+    </div>
+<div class='w-full bg-dark rounded-full h-2'>
+        <div class='bg-green-500 h-2 rounded-full' style='width: 55%'>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+<!-- 爬虫任务状态 -->
+<div class='lg:col-span-2 bg-dark-light rounded-xl p-5 border border-primary/20'>
+        <div class='flex justify-between items-center mb-4'>
+        <h3 class='font-semibold text-lg'>
+        爬虫任务状态
+    </h3>
+<button class='text-primary text-sm flex items-center'>
+        <i class='fas fa-plus mr-1'>
+        </i>
+新建任务
+    </button>
+    </div>
+<div class='overflow-x-auto'>
+        <table class='w-full text-sm'>
+        <thead >
+        <tr class='border-b border-primary/20'>
+        <th class='text-left py-3 px-2 text-gray-custom'>
+        任务名称
+    </th>
+<th class='text-left py-3 px-2 text-gray-custom'>
+        状态
+    </th>
+<th class='text-left py-3 px-2 text-gray-custom'>
+        进度
+    </th>
+<th class='text-left py-3 px-2 text-gray-custom'>
+        数据量
+    </th>
+<th class='text-left py-3 px-2 text-gray-custom'>
+        操作
+    </th>
+    </tr>
+    </thead>
+<tbody >
+        <tr class='border-b border-dark'>
+        <td class='py-3 px-2'>
+        微博舆情采集
+    </td>
+<td class='py-3 px-2'>
+        <span class='px-2 py-1 bg-green-500/20 text-green-500 rounded-full text-xs flex items-center'>
+        <span class='status-indicator status-online w-2 h-2'>
+        </span>
+运行中
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        <div class='w-full bg-dark rounded-full h-1.5'>
+        <div class='bg-primary h-1.5 rounded-full' style='width: 75%'>
+        </div>
+    </div>
+<span class='text-xs text-gray-custom mt-1 block'>
+        75%
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        45,892
+    </td>
+<td class='py-3 px-2'>
+        <div class='flex gap-2'>
+        <button class='text-primary hover:text-primary/80'>
+        <i class='fas fa-pause'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-edit'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-trash'>
+        </i>
+    </button>
+    </div>
+    </td>
+    </tr>
+<tr class='border-b border-dark'>
+        <td class='py-3 px-2'>
+        新闻网站监控
+    </td>
+<td class='py-3 px-2'>
+        <span class='px-2 py-1 bg-blue-500/20 text-blue-500 rounded-full text-xs flex items-center'>
+        <span class='status-indicator status-warning w-2 h-2'>
+        </span>
+暂停中
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        <div class='w-full bg-dark rounded-full h-1.5'>
+        <div class='bg-secondary h-1.5 rounded-full' style='width: 40%'>
+        </div>
+    </div>
+<span class='text-xs text-gray-custom mt-1 block'>
+        40%
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        12,345
+    </td>
+<td class='py-3 px-2'>
+        <div class='flex gap-2'>
+        <button class='text-primary hover:text-primary/80'>
+        <i class='fas fa-play'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-edit'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-trash'>
+        </i>
+    </button>
+    </div>
+    </td>
+    </tr>
+<tr class='border-b border-dark'>
+        <td class='py-3 px-2'>
+        论坛数据采集
+    </td>
+<td class='py-3 px-2'>
+        <span class='px-2 py-1 bg-gray-500/20 text-gray-500 rounded-full text-xs flex items-center'>
+        <span class='status-indicator status-offline w-2 h-2'>
+        </span>
+已停止
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        <div class='w-full bg-dark rounded-full h-1.5'>
+        <div class='bg-accent h-1.5 rounded-full' style='width: 100%'>
+        </div>
+    </div>
+<span class='text-xs text-gray-custom mt-1 block'>
+        100%
+    </span>
+    </td>
+<td class='py-3 px-2'>
+        89,765
+    </td>
+<td class='py-3 px-2'>
+        <div class='flex gap-2'>
+        <button class='text-primary hover:text-primary/80'>
+        <i class='fas fa-play'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-edit'>
+        </i>
+    </button>
+<button class='text-gray-custom hover:text-white'>
+        <i class='fas fa-trash'>
+        </i>
+    </button>
+    </div>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    </div>
+<button class='w-full mt-4 py-2 text-sm text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors'>
+        查看全部任务
+    </button>
+    </div>
+    </div>
+<!-- [/MODULE] r4s_后台主页:系统状态和任务列表 -- 包含系统资源状态监控和爬虫任务状态列表，展示CPU、内存、磁盘和网络使用率，以及爬虫任务的运行状态、进度和数据量 -->
+    </main>
+<!-- [/MODULE] i9j_后台主页 -- 系统概览和数据统计，包含数据统计卡片、图表区域、系统状态和任务列表 -->
+    </div>
+<!-- [/MODULE] e5f_主内容区域 -- 包含顶部导航栏和后台主页内容 -->
+    </div>
+<!-- [/MODULE] a1b_主内容区域 -- 包含侧边导航栏和主内容区域 -->
+<!-- [JSMOD] t5u_侧边栏交互 -->
+<script id='sidebar-script'>// 侧边栏切换功能
+var sidebar = document.getElementById('sidebar');
+var toggleSidebarBtn = document.getElementById('toggle-sidebar');
+var closeSidebarBtn = document.getElementById('close-sidebar');
+toggleSidebarBtn.addEventListener('click', function () {
+  sidebar.classList.toggle('-translate-x-full');
+});
+closeSidebarBtn.addEventListener('click', function () {
+  sidebar.classList.add('-translate-x-full');
+});
+
+// 监听窗口大小变化，在大屏幕上自动显示侧边栏
+window.addEventListener('resize', function () {
+  if (window.innerWidth >= 768) {
+    sidebar.classList.remove('-translate-x-full');
+  } else {
+    sidebar.classList.add('-translate-x-full');
+  }
+});</script>
+<!-- [/JSMOD] t5u_侧边栏交互 -- 实现侧边栏的显示和隐藏功能，适配移动端和桌面端 -->
+<!-- [JSMOD] v6w_图表初始化 -->
+<script id='chart-script'>// 等待页面加载完成
+window.addEventListener('load', function () {
+  // 数据增长趋势图
+  var trendChart = echarts.init(document.getElementById('data-trend-chart'));
+  var trendOption = {
+    color: ['#165DFF'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      backgroundColor: 'rgba(29, 33, 41, 0.8)',
+      borderColor: 'rgba(22, 93, 255, 0.3)',
+      borderWidth: 1,
+      textStyle: {
+        color: '#fff'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(134, 144, 156, 0.3)'
+        }
+      },
+      axisLabel: {
+        color: '#86909C'
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(134, 144, 156, 0.3)'
+        }
+      },
+      axisLabel: {
+        color: '#86909C',
+        formatter: '{value} 万'
+      },
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(134, 144, 156, 0.1)'
+        }
+      }
+    },
+    series: [{
+      name: '数据量',
+      type: 'line',
+      smooth: true,
+      data: [12, 19, 30, 50, 49, 60, 72, 85, 98, 110, 120, 128],
+      lineStyle: {
+        width: 3
+      },
+      itemStyle: {
+        radius: 4,
+        borderWidth: 2,
+        borderColor: '#1D2129'
+      },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+          offset: 0,
+          color: 'rgba(22, 93, 255, 0.4)'
+        }, {
+          offset: 1,
+          color: 'rgba(22, 93, 255, 0)'
+        }])
+      }
+    }]
+  };
+  trendChart.setOption(trendOption);
+
+  // 数据来源分布图
+  var sourceChart = echarts.init(document.getElementById('data-source-chart'));
+  var sourceOption = {
+    color: ['#165DFF', '#0FC6C2', '#722ED1', '#F5A623', '#F04864'],
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(29, 33, 41, 0.8)',
+      borderColor: 'rgba(22, 93, 255, 0.3)',
+      borderWidth: 1,
+      textStyle: {
+        color: '#fff'
+      }
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      textStyle: {
+        color: '#86909C'
+      }
+    },
+    series: [{
+      name: '数据来源',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 10,
+        borderColor: '#1D2129',
+        borderWidth: 2
+      },
+      label: {
+        show: false,
+        position: 'center'
+      },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: '#fff'
+        }
+      },
+      labelLine: {
+        show: false
+      },
+      data: [{
+        value: 35,
+        name: '微博'
+      }, {
+        value: 25,
+        name: '新闻网站'
+      }, {
+        value: 20,
+        name: '论坛'
+      }, {
+        value: 15,
+        name: '微信公众号'
+      }, {
+        value: 5,
+        name: '其他'
+      }]
+    }]
+  };
+  sourceChart.setOption(sourceOption);
+
+  // 监听窗口大小变化，调整图表大小
+  window.addEventListener('resize', function () {
+    trendChart.resize();
+    sourceChart.resize();
+  });
+});</script>
+<!-- [/JSMOD] v6w_图表初始化 -- 初始化数据增长趋势图和数据来源分布图，设置图表样式和数据，并监听窗口大小变化以调整图表尺寸 -->
+    </body>
+    </html>

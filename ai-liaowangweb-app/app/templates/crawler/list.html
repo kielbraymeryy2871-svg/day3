@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden">
+    <!-- 侧边栏 -->
+    <div class="w-64 bg-dark-light p-4 hidden md:block">
+        <div class="flex items-center gap-2 mb-8">
+            <i class="fas fa-robot text-primary text-2xl"></i>
+            <h1 class="text-xl font-bold">AI智能政企望</h1>
+        </div>
+        <nav>
+            <ul class="space-y-2">
+                <li>
+                    <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
+                        <i class="fas fa-home w-5 text-center"></i>
+                        <span>后台首页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('crawler.list_crawlers') }}" class="sidebar-item active">
+                        <i class="fas fa-spider w-5 text-center"></i>
+                        <span>爬虫管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item">
+                        <i class="fas fa-database w-5 text-center"></i>
+                        <span>数据管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item">
+                        <i class="fas fa-chart-line w-5 text-center"></i>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('ai.ai_page') }}" class="sidebar-item">
+                        <i class="fas fa-brain w-5 text-center"></i>
+                        <span>AI模型管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item">
+                        <i class="fas fa-file-alt w-5 text-center"></i>
+                        <span>报告管理</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航 -->
+        <header class="bg-dark-light p-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-gray-custom">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="text-lg font-semibold">爬虫管理</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="text-gray-custom hover:text-white">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <i class="fas fa-user text-primary"></i>
+                    </div>
+                    <span class="text-sm">管理员</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 p-4 overflow-y-auto bg-grid">
+            <!-- 操作栏 -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">爬虫列表</h3>
+                <a href="{{ url_for('crawler.add_crawler') }}" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+                    <i class="fas fa-plus"></i>
+                    <span>添加爬虫</span>
+                </a>
+            </div>
+            
+            <!-- 消息提示 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-4">
+                        {% for category, message in messages %}
+                            <div class="bg-{{ 'green-500' if category == 'success' else 'red-500' }}/10 border border-{{ 'green-500' if category == 'success' else 'red-500' }}/30 text-{{ 'green-400' if category == 'success' else 'red-400' }} px-4 py-2 rounded-lg mb-2">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- 爬虫列表 -->
+            <div class="bg-dark-light rounded-xl p-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-custom/20">
+                                <th class="text-left py-3 px-4">ID</th>
+                                <th class="text-left py-3 px-4">名称</th>
+                                <th class="text-left py-3 px-4">类型</th>
+                                <th class="text-left py-3 px-4">状态</th>
+                                <th class="text-left py-3 px-4">创建时间</th>
+                                <th class="text-left py-3 px-4">最后运行</th>
+                                <th class="text-left py-3 px-4">运行次数</th>
+                                <th class="text-left py-3 px-4">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crawler in crawlers %}
+                                <tr class="border-b border-gray-custom/10 hover:bg-primary/5">
+                                    <td class="py-3 px-4">{{ crawler.id }}</td>
+                                    <td class="py-3 px-4">{{ crawler.name }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-primary/20 text-primary px-2 py-1 rounded text-sm">
+                                            {{ crawler.type }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-{{ 'green-500' if crawler.status == 'active' else 'red-500' }}/20 text-{{ 'green-400' if crawler.status == 'active' else 'red-400' }} px-2 py-1 rounded text-sm">
+                                            {{ '运行中' if crawler.status == 'active' else '已停止' }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">{{ crawler.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td class="py-3 px-4">
+                                        {{ crawler.last_run_at.strftime('%Y-%m-%d %H:%M') if crawler.last_run_at else '未运行' }}
+                                    </td>
+                                    <td class="py-3 px-4">{{ crawler.run_count }}</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex gap-2">
+                                            <a href="{{ url_for('crawler.run_crawler', id=crawler.id) }}" class="text-primary hover:text-primary/80">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                            <a href="{{ url_for('crawler.edit_crawler', id=crawler.id) }}" class="text-gray-custom hover:text-white">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ url_for('crawler.delete_crawler', id=crawler.id) }}" method="POST" class="inline">
+                                                <button type="submit" class="text-red-400 hover:text-red-300" onclick="return confirm('确定要删除这个爬虫吗？')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="py-8 text-center text-gray-custom">
+                                        <i class="fas fa-spider text-3xl mb-2"></i>
+                                        <p>暂无爬虫数据</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

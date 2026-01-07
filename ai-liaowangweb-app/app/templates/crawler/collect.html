@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}采集管理{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">采集管理</h1>
+    
+    <!-- 关键字输入框和开始采集按钮 -->
+    <div class="card mb-5 shadow-sm border-0">
+        <div class="card-body p-5">
+            <form id="collect-form" method="POST">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="keyword" class="form-label fw-semibold">采集关键字</label>
+                            <input type="text" class="form-control form-control-lg border-2" id="keyword" name="keyword" placeholder="请输入要采集的关键字，例如：人工智能" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block shadow-sm hover:shadow">
+                            <i class="bi bi-search"></i> 开始采集
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 爬虫源选择开关面板 -->
+    <div class="card mb-5 shadow-sm border-0">
+        <div class="card-header bg-white border-0 p-4">
+            <h5 class="mb-0 fw-semibold">爬虫源选择</h5>
+        </div>
+        <div class="card-body p-5">
+            <div class="crawler-sources d-flex flex-wrap gap-3">
+                {% if crawlers %}
+                    {% for crawler in crawlers %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input rounded border-2" type="checkbox" id="crawler-{{ crawler.id }}" name="crawler_ids" value="{{ crawler.id }}">
+                            <label class="form-check-label ms-2" for="crawler-{{ crawler.id }}">{{ crawler.name }} <span class="text-muted">({{ crawler.type }})</span></label>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">暂无可用的爬虫源，请先在爬虫管理中添加并激活爬虫</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 采集状态和保存按钮 -->
+    <div class="card mb-5 shadow-sm border-0">
+        <div class="card-body p-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div id="collect-status" class="text-muted h5">
+                        准备就绪
+                    </div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <button id="save-selected" class="btn btn-success btn-lg shadow-sm hover:shadow" disabled>
+                        <i class="bi bi-save"></i> 保存选中数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 橱窗数据列表 -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0 p-4">
+            <h5 class="mb-0 fw-semibold">采集数据</h5>
+        </div>
+        <div class="card-body p-5">
+            <div id="collect-data-list" class="row gap-4">
+                <!-- 数据将通过JavaScript动态添加 -->
+                <div class="col-12 text-center py-10 text-muted">
+                    <div class="mb-4">
+                        <i class="bi bi-database text-5xl text-muted"></i>
+                    </div>
+                    <p class="h5">尚未开始采集数据</p>
+                    <p class="text-muted">请输入关键字并选择爬虫源后开始采集</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 全局变量
+    let collectData = [];
+    let isRunning = false;
+    let lastScrollTop = 0;
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 绑定表单提交事件
+        document.getElementById('collect-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            startCollect();
+        });
+        
+        // 绑定保存按钮点击事件
+        document.getElementById('save-selected').addEventListener('click', function() {
+            saveSelectedData();
+        });
+        
+        // 定期获取采集数据和状态
+        setInterval(function() {
+            if (isRunning) {
+                fetchCollectData();
+            }
+        }, 1000);
+    });
+    
+    // 开始采集
+    function startCollect() {
+        const keyword = document.getElementById('keyword').value;
+        const crawlerCheckboxes = document.querySelectorAll('input[name="crawler_ids"]:checked');
+        const crawlerIds = Array.from(crawlerCheckboxes).map(cb => cb.value);
+        
+        if (!keyword) {
+            alert('请输入关键字');
+            return;
+        }
+        
+        if (crawlerIds.length === 0) {
+            alert('请选择至少一个爬虫源');
+            return;
+        }
+        
+        // 显示加载状态
+        document.getElementById('collect-status').innerHTML = '<span class="text-primary">采集ing...</span>';
+        document.getElementById('collect-data-list').innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">正在采集数据，请稍候...</p></div>';
+        document.getElementById('save-selected').disabled = true;
+        
+        // 发送请求开始采集
+        fetch('/crawler/collect/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'keyword': keyword,
+                'crawler_ids': crawlerIds
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                isRunning = true;
+                collectData = [];
+                // 开始定期获取数据
+                fetchCollectData();
+            } else {
+                alert(data.message);
+                document.getElementById('collect-status').textContent = '准备就绪';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('采集开始失败');
+            document.getElementById('collect-status').textContent = '准备就绪';
+        });
+    }
+    
+    // 获取采集数据
+    function fetchCollectData() {
+        fetch('/crawler/collect/data')
+        .then(response => response.json())
+        .then(data => {
+            const status = data.status;
+            const newData = data.data;
+            
+            // 更新状态
+            if (status.running) {
+                document.getElementById('collect-status').innerHTML = `<span class="text-primary">采集ing... (${status.current} 条)</span>`;
+            } else {
+                isRunning = false;
+                if (status.error) {
+                    document.getElementById('collect-status').innerHTML = `<span class="text-danger">采集失败: ${status.error}</span>`;
+                } else {
+                    document.getElementById('collect-status').innerHTML = `<span class="text-success">采集完成 (共 ${status.total} 条)</span>`;
+                }
+            }
+            
+            // 更新数据列表
+            if (newData.length > 0) {
+                renderCollectData(newData);
+                // 自动滚动到最新位置
+                autoScrollToBottom();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // 渲染采集数据
+    function renderCollectData(data) {
+        const container = document.getElementById('collect-data-list');
+        
+        if (data.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center py-5 text-muted">尚未开始采集数据</div>';
+            return;
+        }
+        
+        // 清空容器
+        container.innerHTML = '';
+        
+        // 添加数据项
+        data.forEach(item => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+            
+            col.innerHTML = `
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-img-top" style="height: 180px; overflow: hidden; background-color: #f8f9fa;">
+                        <img src="${item.cover_image}" class="img-fluid w-100 h-100 object-fit-cover rounded-top" alt="封面图片">
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="data-${item.id}" value="${item.id}">
+                            <label class="form-check-label" for="data-${item.id}">选择</label>
+                        </div>
+                        <h5 class="card-title mb-3">
+                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="text-dark hover:text-primary text-decoration-none">${item.title}</a>
+                        </h5>
+                        <p class="card-text text-muted mb-4" style="min-height: 60px;">${item.abstract || ''}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-sm text-muted">${item.source || ''}</span>
+                            <span class="text-sm text-muted">${item.timestamp || ''}</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-xs text-info bg-info bg-opacity-10 px-3 py-1 rounded-full">${item.keyword || ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(col);
+        });
+        
+        // 启用保存按钮
+        document.getElementById('save-selected').disabled = false;
+        
+        // 绑定复选框事件，更新保存按钮状态
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSaveButtonStatus);
+        });
+    }
+    
+    // 更新保存按钮状态
+    function updateSaveButtonStatus() {
+        const checkedBoxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]:checked');
+        const saveButton = document.getElementById('save-selected');
+        saveButton.disabled = checkedBoxes.length === 0;
+    }
+    
+    // 保存选中的数据
+    function saveSelectedData() {
+        const checkedBoxes = document.querySelectorAll('input[type="checkbox"][id^="data-"]:checked');
+        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+        
+        if (selectedIds.length === 0) {
+            alert('请选择至少一条数据');
+            return;
+        }
+        
+        // 显示加载状态
+        const saveButton = document.getElementById('save-selected');
+        const originalText = saveButton.innerHTML;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 保存中...';
+        saveButton.disabled = true;
+        
+        // 发送请求保存数据
+        fetch('/crawler/collect/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'selected_ids': selectedIds
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败');
+        })
+        .finally(() => {
+            saveButton.innerHTML = originalText;
+            updateSaveButtonStatus();
+        });
+    }
+    
+    // 自动滚动到最新位置
+    function autoScrollToBottom() {
+        const container = document.getElementById('collect-data-list');
+        const currentScrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        // 如果用户没有手动滚动，或者已经滚动到底部附近，则自动滚动
+        if (currentScrollTop + clientHeight >= scrollHeight - 100) {
+            container.scrollTop = scrollHeight;
+        }
+    }
+</script>
+{% endblock %}
