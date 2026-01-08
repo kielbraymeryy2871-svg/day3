@@ -21,19 +21,19 @@
                 <i class="fas fa-tachometer-alt w-5 text-center"></i>
                 <span>后台主页</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('crawler.collect_page') }}" class="sidebar-item">
                 <i class="fas fa-database w-5 text-center"></i>
                 <span>采集管理</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('crawler.list_crawlers') }}" class="sidebar-item">
                 <i class="fas fa-spider w-5 text-center"></i>
                 <span>爬虫管理</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('main.data_management') }}" class="sidebar-item">
                 <i class="fas fa-table w-5 text-center"></i>
                 <span>数据管理</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
                 <i class="fas fa-search-plus w-5 text-center"></i>
                 <span>深采管理</span>
             </a>
@@ -42,16 +42,16 @@
                 <i class="fas fa-cogs w-5 text-center"></i>
                 <span>AI模型管理</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
                 <i class="fas fa-file-alt w-5 text-center"></i>
                 <span>AI分析与报告</span>
             </a>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
                 <i class="fas fa-chart-line w-5 text-center"></i>
                 <span>AI数智大屏</span>
             </a>
             <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4">系统</p>
-            <a href="javascript:void(0);" class="sidebar-item">
+            <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
                 <i class="fas fa-cog w-5 text-center"></i>
                 <span>系统设置</span>
             </a>
@@ -95,70 +95,22 @@
                 <p class="text-gray-custom mt-1">管理AI模型配置和推理设置</p>
             </div>
             <!-- AI模型列表 -->
-            <div class="bg-dark-light rounded-xl p-5 border border-primary/20 mb-8">
+            <div class="mb-8">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-semibold text-lg">AI模型列表</h3>
-                    <button class="text-primary text-sm flex items-center">
+                    <button id="add-model-btn" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
                         <i class="fas fa-plus mr-1"></i>
                         新增模型
                     </button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-primary/20">
-                                <th class="text-left py-3 px-2 text-gray-custom">模型名称</th>
-                                <th class="text-left py-3 px-2 text-gray-custom">状态</th>
-                                <th class="text-left py-3 px-2 text-gray-custom">版本</th>
-                                <th class="text-left py-3 px-2 text-gray-custom">描述</th>
-                                <th class="text-left py-3 px-2 text-gray-custom">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b border-dark">
-                                <td class="py-3 px-2">OpenAI GPT-4</td>
-                                <td class="py-3 px-2">
-                                    <span class="px-2 py-1 bg-green-500/20 text-green-500 rounded-full text-xs flex items-center">
-                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                                        运行中
-                                    </span>
-                                </td>
-                                <td class="py-3 px-2">1.0</td>
-                                <td class="py-3 px-2">通用大语言模型，用于文本生成和分析</td>
-                                <td class="py-3 px-2">
-                                    <div class="flex gap-2">
-                                        <button class="text-primary hover:text-primary/80">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="text-gray-custom hover:text-white">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-dark">
-                                <td class="py-3 px-2">本地分析模型</td>
-                                <td class="py-3 px-2">
-                                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-500 rounded-full text-xs flex items-center">
-                                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
-                                        配置中
-                                    </span>
-                                </td>
-                                <td class="py-3 px-2">0.1</td>
-                                <td class="py-3 px-2">本地部署的分析模型，用于实时数据处理</td>
-                                <td class="py-3 px-2">
-                                    <div class="flex gap-2">
-                                        <button class="text-primary hover:text-primary/80">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="text-gray-custom hover:text-white">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="ai-model-grid">
+                    <!-- 模型卡片将通过JavaScript动态生成 -->
+                </div>
+                <div id="no-models" class="hidden text-center py-12">
+                    <div class="w-16 h-16 bg-dark rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-robot text-2xl text-gray-custom"></i>
+                    </div>
+                    <p class="text-gray-custom">暂无AI模型，请点击"新增模型"按钮添加</p>
                 </div>
             </div>
             <!-- AI推理测试 -->
@@ -186,6 +138,149 @@
         </main>
     </div>
 </div>
+
+<!-- 新增模型模态框 -->
+<div id="add-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white">新增AI模型</h3>
+            <button class="text-gray-custom hover:text-white close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="add-model-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">模型名称</label>
+                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">API URL</label>
+                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API地址" value="https://api.siliconflow.cn/v1/">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">API Key</label>
+                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API密钥" value="sk-vhbqqxyqqafvucfoybgkdmwvbmnivzlhylogfjestzswxeew">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">模型名称 (Model Name)</label>
+                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称" value="Qwen/Qwen3-Next-80B-A3B-Instruct">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">系统提示词</label>
+                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入系统提示词"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">描述</label>
+                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型描述"></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 编辑模型模态框 -->
+<div id="edit-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white">编辑AI模型</h3>
+            <button class="text-gray-custom hover:text-white close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="edit-model-form" class="space-y-4">
+            <input type="hidden" name="id">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">模型名称</label>
+                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">API URL</label>
+                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API地址">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">API Key</label>
+                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API密钥">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">模型名称 (Model Name)</label>
+                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">系统提示词</label>
+                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入系统提示词"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">描述</label>
+                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型描述"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">状态</label>
+                <select name="status" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white">
+                    <option value="active">激活</option>
+                    <option value="inactive">未激活</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 删除模型确认模态框 -->
+<div id="delete-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white">删除模型</h3>
+            <button class="text-gray-custom hover:text-white close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <p class="text-gray-300 mb-6">确定要删除此AI模型吗？此操作不可撤销。</p>
+        <input type="hidden" id="delete-model-id">
+        <div class="flex justify-end gap-3">
+            <button class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
+            <button id="confirm-delete" class="px-4 py-2 bg-red-500 hover:bg-red-500/80 rounded-lg text-white">删除</button>
+        </div>
+    </div>
+</div>
+
+<!-- 模型测试聊天弹窗 -->
+<div id="model-test-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-primary/20">
+            <h3 class="text-xl font-bold text-white">模型测试 - <span id="test-model-name">OpenAI GPT-4</span></h3>
+            <button class="text-gray-custom hover:text-white close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+            <!-- 系统消息 -->
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="bg-dark rounded-lg p-3 max-w-[80%]">
+                    <p class="text-gray-300">欢迎使用模型测试！我是您的AI助手，随时为您解答问题。</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-primary/20">
+            <form id="chat-form" class="flex gap-2">
+                <input type="hidden" id="test-model-id">
+                <input type="text" id="chat-input" class="flex-1 bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入您的问题...">
+                <button type="submit" class="bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 text-white transition-colors">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     // 侧边栏切换功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -240,6 +335,407 @@
                 }, 1000);
             });
         }
+        
+        // 模态框功能
+        const addModelBtn = document.getElementById('add-model-btn');
+        const addModelModal = document.getElementById('add-model-modal');
+        const editModelModal = document.getElementById('edit-model-modal');
+        const deleteModelModal = document.getElementById('delete-model-modal');
+        const modelTestModal = document.getElementById('model-test-modal');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        
+        // 打开新增模型模态框
+        if (addModelBtn) {
+            addModelBtn.addEventListener('click', function() {
+                addModelModal.classList.remove('hidden');
+            });
+        }
+        
+        // 关闭模态框
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                addModelModal.classList.add('hidden');
+                editModelModal.classList.add('hidden');
+                deleteModelModal.classList.add('hidden');
+                modelTestModal.classList.add('hidden');
+            });
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(e) {
+            if (e.target === addModelModal) {
+                addModelModal.classList.add('hidden');
+            }
+            if (e.target === editModelModal) {
+                editModelModal.classList.add('hidden');
+            }
+            if (e.target === deleteModelModal) {
+                deleteModelModal.classList.add('hidden');
+            }
+            if (e.target === modelTestModal) {
+                modelTestModal.classList.add('hidden');
+            }
+        });
+        
+        // 加载模型列表
+        function loadModels() {
+            const modelGrid = document.getElementById('ai-model-grid');
+            const noModels = document.getElementById('no-models');
+            
+            // 显示加载状态
+            modelGrid.innerHTML = '<div class="col-span-full flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-2xl text-primary"></i></div>';
+            
+            fetch('/ai/models')
+                .then(response => response.json())
+                .then(models => {
+                    modelGrid.innerHTML = '';
+                    if (models.length === 0) {
+                        noModels.classList.remove('hidden');
+                        modelGrid.classList.add('hidden');
+                    } else {
+                        noModels.classList.add('hidden');
+                        modelGrid.classList.remove('hidden');
+                        
+                        models.forEach(model => {
+                            const modelCard = document.createElement('div');
+                            modelCard.className = 'bg-dark-light rounded-xl border border-primary/20 p-5 transition-all hover:shadow-lg hover:shadow-primary/10';
+                            modelCard.innerHTML = `
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 class="font-semibold text-lg mb-1">${model.name}</h4>
+                                        <p class="text-gray-custom text-sm mb-2">${model.model_name}</p>
+                                        <p class="text-xs text-${model.status === 'active' ? 'green' : 'red'}-500">${model.status === 'active' ? '已激活' : '未激活'}</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="model-edit-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="model-delete-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="model-test-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                            <i class="fas fa-comment-dots"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-custom text-sm mb-4">${model.description || '无描述'}</p>
+                                <div class="flex justify-between items-center pt-4 border-t border-primary/20">
+                                    <div>
+                                        <p class="text-xs text-gray-custom">总Token消耗</p>
+                                        <p class="font-semibold">${model.total_tokens}</p>
+                                    </div>
+                                    <div class="text-xs text-gray-custom">
+                                        ${model.api_url}
+                                    </div>
+                                </div>
+                            `;
+                            modelGrid.appendChild(modelCard);
+                        });
+                        
+                        // 绑定模型按钮事件
+                        bindModelEvents();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载模型失败:', error);
+                    modelGrid.innerHTML = '<div class="col-span-full text-center py-12 text-red-500">加载模型失败，请刷新页面重试</div>';
+                });
+        }
+        
+        // 绑定模型按钮事件
+        function bindModelEvents() {
+            const modelEditBtns = document.querySelectorAll('.model-edit-btn');
+            const modelDeleteBtns = document.querySelectorAll('.model-delete-btn');
+            const modelTestBtns = document.querySelectorAll('.model-test-btn');
+            
+            // 编辑模型
+            modelEditBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modelId = this.getAttribute('data-model-id');
+                    
+                    // 从后端获取模型数据
+                    fetch(`/ai/models/${modelId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 填充表单
+                                document.getElementById('edit-model-form').querySelector('input[name="id"]').value = data.id;
+                                document.getElementById('edit-model-form').querySelector('input[name="name"]').value = data.name;
+                                document.getElementById('edit-model-form').querySelector('input[name="api_url"]').value = data.api_url;
+                                document.getElementById('edit-model-form').querySelector('input[name="api_key"]').value = data.api_key;
+                                document.getElementById('edit-model-form').querySelector('input[name="model_name"]').value = data.model_name;
+                                document.getElementById('edit-model-form').querySelector('textarea[name="system_prompt"]').value = data.system_prompt || '';
+                                document.getElementById('edit-model-form').querySelector('textarea[name="description"]').value = data.description || '';
+                                document.getElementById('edit-model-form').querySelector('select[name="status"]').value = data.status;
+                                
+                                editModelModal.classList.remove('hidden');
+                            } else {
+                                alert('获取模型数据失败: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('获取模型数据失败:', error);
+                            alert('获取模型数据失败，请重试');
+                        });
+                });
+            });
+            
+            // 删除模型
+            modelDeleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modelId = this.getAttribute('data-model-id');
+                    document.getElementById('delete-model-id').value = modelId;
+                    deleteModelModal.classList.remove('hidden');
+                });
+            });
+            
+            // 测试模型
+            modelTestBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modelId = this.getAttribute('data-model-id');
+                    const modelName = this.closest('.bg-dark-light').querySelector('h4').textContent;
+                    document.getElementById('test-model-id').value = modelId;
+                    document.getElementById('test-model-name').textContent = modelName;
+                    modelTestModal.classList.remove('hidden');
+                });
+            });
+        }
+        
+        // 确认删除
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                const modelId = document.getElementById('delete-model-id').value;
+                
+                // 发送删除请求
+                fetch(`/ai/models/${modelId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    deleteModelModal.classList.add('hidden');
+                    if (data.success) {
+                        // 重新加载模型列表
+                        loadModels();
+                        alert('模型删除成功');
+                    } else {
+                        alert('模型删除失败: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('删除模型失败:', error);
+                    deleteModelModal.classList.add('hidden');
+                    alert('模型删除失败，请重试');
+                });
+            });
+        }
+        
+        // 聊天功能
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        if (chatForm) {
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                const modelId = document.getElementById('test-model-id').value;
+                
+                // 添加用户消息
+                const userMessageHTML = `
+                    <div class="flex items-start gap-3 justify-end">
+                        <div class="bg-primary/20 rounded-lg p-3 max-w-[80%]">
+                            <p class="text-white">${message}</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', userMessageHTML);
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 添加AI响应加载状态
+                const loadingHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="bg-dark rounded-lg p-3 max-w-[80%]">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                                <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', loadingHTML);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 发送测试请求
+                fetch('/ai/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ model_id: modelId, prompt: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 移除加载状态
+                    const loadingElement = chatMessages.lastElementChild;
+                    loadingElement.remove();
+                    
+                    if (data.success) {
+                        // 添加AI响应
+                        const aiResponseHTML = `
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-robot text-white"></i>
+                                </div>
+                                <div class="bg-dark rounded-lg p-3 max-w-[80%]">
+                                    <p class="text-gray-300">${data.response}</p>
+                                    <div class="text-xs text-gray-custom mt-2">
+                                        Token: ${data.usage.total_tokens} (${data.usage.prompt_tokens} + ${data.usage.completion_tokens})
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.insertAdjacentHTML('beforeend', aiResponseHTML);
+                    } else {
+                        // 添加错误响应
+                        const errorResponseHTML = `
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-robot text-white"></i>
+                                </div>
+                                <div class="bg-dark rounded-lg p-3 max-w-[80%]">
+                                    <p class="text-red-500">测试失败: ${data.error}</p>
+                                </div>
+                            </div>
+                        `;
+                        chatMessages.insertAdjacentHTML('beforeend', errorResponseHTML);
+                    }
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('测试模型失败:', error);
+                    // 移除加载状态
+                    const loadingElement = chatMessages.lastElementChild;
+                    loadingElement.remove();
+                    
+                    // 添加错误响应
+                    const errorResponseHTML = `
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-robot text-white"></i>
+                            </div>
+                            <div class="bg-dark rounded-lg p-3 max-w-[80%]">
+                                <p class="text-red-500">测试失败: 网络错误，请重试</p>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.insertAdjacentHTML('beforeend', errorResponseHTML);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+            });
+        }
+        
+        // 表单提交
+        const addModelForm = document.getElementById('add-model-form');
+        const editModelForm = document.getElementById('edit-model-form');
+        
+        if (addModelForm) {
+            addModelForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 收集表单数据
+                const formData = {
+                    name: this.querySelector('input[name="name"]').value,
+                    api_url: this.querySelector('input[name="api_url"]').value,
+                    api_key: this.querySelector('input[name="api_key"]').value,
+                    model_name: this.querySelector('input[name="model_name"]').value,
+                    system_prompt: this.querySelector('textarea[name="system_prompt"]').value,
+                    description: this.querySelector('textarea[name="description"]').value
+                };
+                
+                // 发送添加模型请求
+                fetch('/ai/models', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addModelModal.classList.add('hidden');
+                        // 重置表单
+                        this.reset();
+                        // 重新加载模型列表
+                        loadModels();
+                        alert('模型添加成功');
+                    } else {
+                        alert('模型添加失败: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('添加模型失败:', error);
+                    alert('模型添加失败，请重试');
+                });
+            });
+        }
+        
+        if (editModelForm) {
+            editModelForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const modelId = this.querySelector('input[name="id"]').value;
+                
+                // 收集表单数据
+                const formData = {
+                    name: this.querySelector('input[name="name"]').value,
+                    api_url: this.querySelector('input[name="api_url"]').value,
+                    api_key: this.querySelector('input[name="api_key"]').value,
+                    model_name: this.querySelector('input[name="model_name"]').value,
+                    system_prompt: this.querySelector('textarea[name="system_prompt"]').value,
+                    description: this.querySelector('textarea[name="description"]').value,
+                    status: this.querySelector('select[name="status"]').value
+                };
+                
+                // 发送编辑模型请求
+                fetch(`/ai/models/${modelId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        editModelModal.classList.add('hidden');
+                        // 重新加载模型列表
+                        loadModels();
+                        alert('模型编辑成功');
+                    } else {
+                        alert('模型编辑失败: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('编辑模型失败:', error);
+                    alert('模型编辑失败，请重试');
+                });
+            });
+        }
+        
+        // 初始加载模型列表
+        loadModels();
     });
 </script>
 {% endblock %}

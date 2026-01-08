@@ -13,6 +13,7 @@ login_manager.login_view = 'main.login'
 from app.models.user import User
 from app.models.crawler import Crawler
 from app.models.collect_data import CollectData
+from app.models.ai_model import AIModel, AITokenStats
 
 # 然后导入蓝图
 from app.routes import main, ai_routes, crawler_bp
