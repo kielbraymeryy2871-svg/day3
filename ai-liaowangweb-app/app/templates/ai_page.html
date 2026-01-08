@@ -89,16 +89,29 @@
             </div>
         </header>
         <!-- AI功能页面内容 -->
-        <main class="flex-1 overflow-y-auto bg-grid p-4 md:p-6">
-            <div class="mb-8">
-                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white text-shadow">AI模型管理</h2>
-                <p class="text-gray-custom mt-1">管理AI模型配置和推理设置</p>
+        <main class="flex-1 overflow-y-auto bg-dark p-4 md:p-6">
+            <!-- 背景网格效果 -->
+            <div class="absolute inset-0 bg-grid opacity-10 pointer-events-none"></div>
+            
+            <!-- 页面标题 -->
+            <div class="mb-10 relative z-10">
+                <div class="inline-block mb-2">
+                    <span class="text-primary font-medium">AI功能</span>
+                    <i class="fas fa-chevron-right mx-2 text-xs text-gray-custom"></i>
+                    <span class="text-white font-medium">模型管理</span>
+                </div>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white text-shadow mb-2">AI模型管理</h2>
+                <p class="text-gray-custom">管理AI模型配置和推理设置，支持OpenAI API范式接入</p>
             </div>
+            
             <!-- AI模型列表 -->
-            <div class="mb-8">
+            <div class="mb-10 relative z-10">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-semibold text-lg">AI模型列表</h3>
-                    <button id="add-model-btn" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
+                    <div>
+                        <h3 class="font-semibold text-lg text-white">AI模型列表</h3>
+                        <p class="text-sm text-gray-custom">管理和配置AI模型服务</p>
+                    </div>
+                    <button id="add-model-btn" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors shadow-lg shadow-primary/20">
                         <i class="fas fa-plus mr-1"></i>
                         新增模型
                     </button>
@@ -106,30 +119,44 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="ai-model-grid">
                     <!-- 模型卡片将通过JavaScript动态生成 -->
                 </div>
-                <div id="no-models" class="hidden text-center py-12">
-                    <div class="w-16 h-16 bg-dark rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-robot text-2xl text-gray-custom"></i>
+                <div id="no-models" class="hidden text-center py-16 bg-dark-light rounded-xl border border-primary/10">
+                    <div class="w-20 h-20 bg-dark rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-robot text-3xl text-primary/70"></i>
                     </div>
-                    <p class="text-gray-custom">暂无AI模型，请点击"新增模型"按钮添加</p>
+                    <h4 class="text-lg font-medium text-white mb-2">暂无AI模型</h4>
+                    <p class="text-gray-custom mb-6">请点击"新增模型"按钮添加AI模型配置</p>
+                    <button id="add-model-btn-alt" class="bg-primary hover:bg-primary/80 text-white px-6 py-2 rounded-lg text-sm flex items-center transition-colors mx-auto">
+                        <i class="fas fa-plus mr-1"></i>
+                        新增模型
+                    </button>
                 </div>
             </div>
+            
             <!-- AI推理测试 -->
-            <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
-                <h3 class="font-semibold text-lg mb-6">AI推理测试</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label for="prompt" class="block text-sm font-medium text-gray-300 mb-2">输入提示</label>
-                        <textarea id="prompt" rows="4" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="请输入测试提示..."></textarea>
+            <div class="bg-dark-light rounded-xl p-6 border border-primary/20 shadow-lg shadow-primary/5 relative z-10">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fas fa-brain text-primary text-xl"></i>
                     </div>
                     <div>
-                        <button id="test-inference" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-primary/80 rounded-lg transition-colors flex items-center justify-center">
+                        <h3 class="font-semibold text-lg text-white">AI推理测试</h3>
+                        <p class="text-sm text-gray-custom">测试AI模型的推理能力和响应速度</p>
+                    </div>
+                </div>
+                <div class="space-y-5">
+                    <div>
+                        <label for="prompt" class="block text-sm font-medium text-gray-300 mb-2">输入提示</label>
+                        <textarea id="prompt" rows="4" class="w-full bg-dark rounded-lg p-4 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="请输入测试提示..."></textarea>
+                    </div>
+                    <div>
+                        <button id="test-inference" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-primary/80 rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-primary/20 hover:shadow-primary/30">
                             <i class="fas fa-play mr-2"></i>
                             测试推理
                         </button>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">推理结果</label>
-                        <div id="inference-result" class="w-full bg-dark rounded-lg p-4 border border-primary/20 min-h-[150px] text-gray-300">
+                        <div id="inference-result" class="w-full bg-dark rounded-lg p-5 border border-primary/20 min-h-[180px] text-gray-300 shadow-inner shadow-primary/5">
                             推理结果将显示在这里...
                         </div>
                     </div>
@@ -141,41 +168,46 @@
 
 <!-- 新增模型模态框 -->
 <div id="add-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-white">新增AI模型</h3>
-            <button class="text-gray-custom hover:text-white close-modal">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6 shadow-2xl shadow-primary/10">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-3">
+                    <i class="fas fa-plus text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">新增AI模型</h3>
+            </div>
+            <button class="text-gray-custom hover:text-white close-modal rounded-full p-1 hover:bg-primary/10 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="add-model-form" class="space-y-4">
+        <form id="add-model-form" class="space-y-5">
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">模型名称</label>
-                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型名称">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">API URL</label>
-                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API地址" value="https://api.siliconflow.cn/v1/">
+                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入API地址" value="https://api.siliconflow.cn/v1/">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">API Key</label>
-                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API密钥" value="sk-vhbqqxyqqafvucfoybgkdmwvbmnivzlhylogfjestzswxeew">
+                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入API密钥" value="sk-vhbqqxyqqafvucfoybgkdmwvbmnivzlhylogfjestzswxeew">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">模型名称 (Model Name)</label>
-                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称" value="Qwen/Qwen3-Next-80B-A3B-Instruct">
+                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型名称" value="Qwen/Qwen3-Next-80B-A3B-Instruct">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">系统提示词</label>
-                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入系统提示词"></textarea>
+                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入系统提示词"></textarea>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">描述</label>
-                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型描述"></textarea>
+                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型描述"></textarea>
             </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
-                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white">保存</button>
+            <div class="flex justify-end gap-3 pt-4 border-t border-primary/10">
+                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal transition-colors">取消</button>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white transition-colors shadow-lg shadow-primary/20">保存</button>
             </div>
         </form>
     </div>
@@ -183,49 +215,54 @@
 
 <!-- 编辑模型模态框 -->
 <div id="edit-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-white">编辑AI模型</h3>
-            <button class="text-gray-custom hover:text-white close-modal">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-lg p-6 shadow-2xl shadow-primary/10">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-3">
+                    <i class="fas fa-edit text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">编辑AI模型</h3>
+            </div>
+            <button class="text-gray-custom hover:text-white close-modal rounded-full p-1 hover:bg-primary/10 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="edit-model-form" class="space-y-4">
+        <form id="edit-model-form" class="space-y-5">
             <input type="hidden" name="id">
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">模型名称</label>
-                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+                <input type="text" name="name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型名称">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">API URL</label>
-                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API地址">
+                <input type="text" name="api_url" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入API地址">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">API Key</label>
-                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入API密钥">
+                <input type="text" name="api_key" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入API密钥">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">模型名称 (Model Name)</label>
-                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型名称">
+                <input type="text" name="model_name" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型名称">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">系统提示词</label>
-                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入系统提示词"></textarea>
+                <textarea name="system_prompt" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入系统提示词"></textarea>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">描述</label>
-                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入模型描述"></textarea>
+                <textarea name="description" rows="3" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5" placeholder="输入模型描述"></textarea>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">状态</label>
-                <select name="status" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white">
+                <select name="status" class="w-full bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white transition-all shadow-inner shadow-primary/5">
                     <option value="active">激活</option>
                     <option value="inactive">未激活</option>
                 </select>
             </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
-                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white">保存</button>
+            <div class="flex justify-end gap-3 pt-4 border-t border-primary/10">
+                <button type="button" class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal transition-colors">取消</button>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg text-white transition-colors shadow-lg shadow-primary/20">保存</button>
             </div>
         </form>
     </div>
@@ -233,47 +270,58 @@
 
 <!-- 删除模型确认模态框 -->
 <div id="delete-model-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-md p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-white">删除模型</h3>
-            <button class="text-gray-custom hover:text-white close-modal">
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-md p-6 shadow-2xl shadow-primary/10">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center mr-3">
+                    <i class="fas fa-trash text-red-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">删除模型</h3>
+            </div>
+            <button class="text-gray-custom hover:text-white close-modal rounded-full p-1 hover:bg-primary/10 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <p class="text-gray-300 mb-6">确定要删除此AI模型吗？此操作不可撤销。</p>
         <input type="hidden" id="delete-model-id">
-        <div class="flex justify-end gap-3">
-            <button class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal">取消</button>
-            <button id="confirm-delete" class="px-4 py-2 bg-red-500 hover:bg-red-500/80 rounded-lg text-white">删除</button>
+        <div class="flex justify-end gap-3 pt-4 border-t border-primary/10">
+            <button class="px-4 py-2 bg-dark hover:bg-dark-light rounded-lg text-gray-300 close-modal transition-colors">取消</button>
+            <button id="confirm-delete" class="px-4 py-2 bg-red-500 hover:bg-red-500/80 rounded-lg text-white transition-colors shadow-lg shadow-red-500/20">删除</button>
         </div>
     </div>
 </div>
 
 <!-- 模型测试聊天弹窗 -->
 <div id="model-test-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-2xl max-h-[90vh] flex flex-col">
-        <div class="flex justify-between items-center p-4 border-b border-primary/20">
-            <h3 class="text-xl font-bold text-white">模型测试 - <span id="test-model-name">OpenAI GPT-4</span></h3>
-            <button class="text-gray-custom hover:text-white close-modal">
-                <i class="fas fa-times"></i>
-            </button>
+    <div class="bg-dark-light rounded-xl border border-primary/20 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl shadow-primary/10">
+        <!-- 导航路径 -->
+        <div class="p-4 border-b border-primary/20 bg-dark">
+            <div class="flex items-center text-sm text-gray-custom">
+                <span>默认助手</span>
+                <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                <span class="text-white" id="test-model-name">Qwen3-Next-80B</span>
+                <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                <span class="text-white">智能开发平台</span>
+            </div>
         </div>
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+        <!-- 聊天区域 -->
+        <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-6 bg-dark">
             <!-- 系统消息 -->
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-robot text-white"></i>
                 </div>
-                <div class="bg-dark rounded-lg p-3 max-w-[80%]">
-                    <p class="text-gray-300">欢迎使用模型测试！我是您的AI助手，随时为您解答问题。</p>
+                <div class="bg-dark-light rounded-lg p-4 max-w-[80%] border border-primary/20">
+                    <p class="text-gray-300">你好，我是默认助手，你可以开始和我聊天</p>
                 </div>
             </div>
         </div>
-        <div class="p-4 border-t border-primary/20">
+        <!-- 输入区域 -->
+        <div class="p-4 border-t border-primary/20 bg-dark">
             <form id="chat-form" class="flex gap-2">
                 <input type="hidden" id="test-model-id">
-                <input type="text" id="chat-input" class="flex-1 bg-dark rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white" placeholder="输入您的问题...">
-                <button type="submit" class="bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 text-white transition-colors">
+                <input type="text" id="chat-input" class="flex-1 bg-dark-light rounded-lg p-3 border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white shadow-inner shadow-primary/5" placeholder="在这里输入消息，按 Enter 发送">
+                <button type="submit" class="bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 text-white transition-colors shadow-lg shadow-primary/20">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
@@ -399,33 +447,40 @@
                         
                         models.forEach(model => {
                             const modelCard = document.createElement('div');
-                            modelCard.className = 'bg-dark-light rounded-xl border border-primary/20 p-5 transition-all hover:shadow-lg hover:shadow-primary/10';
+                            modelCard.className = 'bg-dark-light rounded-xl border border-primary/20 p-5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/40 transform hover:-translate-y-1';
                             modelCard.innerHTML = `
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
-                                        <h4 class="font-semibold text-lg mb-1">${model.name}</h4>
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mr-3">
+                                                <i class="fas fa-brain text-primary"></i>
+                                            </div>
+                                            <h4 class="font-semibold text-lg text-white">${model.name}</h4>
+                                        </div>
                                         <p class="text-gray-custom text-sm mb-2">${model.model_name}</p>
-                                        <p class="text-xs text-${model.status === 'active' ? 'green' : 'red'}-500">${model.status === 'active' ? '已激活' : '未激活'}</p>
+                                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${model.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+                                            ${model.status === 'active' ? '已激活' : '未激活'}
+                                        </div>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button class="model-edit-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                        <button class="model-edit-btn text-gray-custom hover:text-white p-1 rounded-full hover:bg-primary/10 transition-colors" data-model-id="${model.id}">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="model-delete-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                        <button class="model-delete-btn text-gray-custom hover:text-white p-1 rounded-full hover:bg-red-500/10 transition-colors" data-model-id="${model.id}">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="model-test-btn text-gray-custom hover:text-white p-1" data-model-id="${model.id}">
+                                        <button class="model-test-btn text-gray-custom hover:text-white p-1 rounded-full hover:bg-primary/10 transition-colors" data-model-id="${model.id}">
                                             <i class="fas fa-comment-dots"></i>
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-gray-custom text-sm mb-4">${model.description || '无描述'}</p>
+                                <p class="text-gray-custom text-sm mb-4 line-clamp-2">${model.description || '无描述'}</p>
                                 <div class="flex justify-between items-center pt-4 border-t border-primary/20">
                                     <div>
                                         <p class="text-xs text-gray-custom">总Token消耗</p>
-                                        <p class="font-semibold">${model.total_tokens}</p>
+                                        <p class="font-semibold text-white">${model.total_tokens}</p>
                                     </div>
-                                    <div class="text-xs text-gray-custom">
+                                    <div class="text-xs text-gray-custom truncate max-w-[50%]">
                                         ${model.api_url}
                                     </div>
                                 </div>
