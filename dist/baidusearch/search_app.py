@@ -296,12 +296,38 @@ def search_baidu(keyword, page=1):
                             source = domain_match.group(1)
                             print(f"[DEBUG] 从URL提取来源: {source}")
             
+            # 提取URL
+            url = ""
+            link_elem = item.select_one('a[href]')
+            if link_elem:
+                url = link_elem.get('href', '')
+                print(f"[DEBUG] 找到URL: {url[:30]}...")
+            
+            # 提取封面图片
+            cover = ""
+            # 尝试从结果中提取图片
+            img_elem = item.select_one('img')
+            if img_elem:
+                img_url = img_elem.get('src', '')
+                if img_url:
+                    # 处理相对路径
+                    if not img_url.startswith(('http://', 'https://')):
+                        # 尝试构建完整URL
+                        if img_url.startswith('//'):
+                            img_url = 'https:' + img_url
+                        else:
+                            # 可能是百度内部的图片URL
+                            img_url = 'https://www.baidu.com' + img_url
+                    cover = img_url
+                    print(f"[DEBUG] 找到封面图片: {cover[:30]}...")
+            
             # 构建结果
             result = {
                 "title": title,
+                "url": url,
                 "abstract": abstract,
                 "source": source,
-                "cover": ""
+                "cover": cover
             }
             results.append(result)
             print(f"[DEBUG] 添加结果: {title[:20]}...")

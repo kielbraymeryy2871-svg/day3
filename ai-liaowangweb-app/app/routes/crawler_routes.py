@@ -197,7 +197,7 @@ def start_collect():
                                 result['source'] = result.get('source', '百度搜索')
                                 result['keyword'] = keyword  # 添加关键字信息
                                 # 提取或生成封面图片
-                                result['cover_image'] = result.get('cover_image', 'https://neeko-copilot.bytedance.net/api/text2image?prompt=news%20article%20placeholder%20image&image_size=square')
+                                result['cover_image'] = result.get('cover', '') or result.get('cover_image', 'https://neeko-copilot.bytedance.net/api/text2image?prompt=news%20article%20placeholder%20image&image_size=square')
                                 collect_data.append(result)
                                 collect_status['current'] += 1
                                 # 模拟采集延迟
@@ -232,33 +232,66 @@ def save_collect_data():
     # 获取选中的数据ID
     selected_ids = request.form.getlist('selected_ids')
     
+    print(f"Received selected_ids: {selected_ids}")
+    print(f"Collect data length: {len(collect_data)}")
+    
     if not selected_ids:
         return jsonify({'status': 'error', 'message': '请选择至少一条数据'})
     
     # 过滤出选中的数据
     selected_data = [item for item in collect_data if item.get('id') in selected_ids]
     
+    print(f"Selected data length: {len(selected_data)}")
+    
     # 保存到数据库
-    saved_count = 0
+    new_count = 0
+    update_count = 0
     try:
         for data_item in selected_data:
-            # 创建新的CollectData实例
-            collect_item = CollectData(
-                title=data_item.get('title'),
-                url=data_item.get('url'),
-                abstract=data_item.get('abstract'),
-                source=data_item.get('source'),
-                timestamp=datetime.strptime(data_item.get('timestamp'), '%Y-%m-%d %H:%M:%S') if data_item.get('timestamp') else datetime.utcnow(),
-                cover_image=data_item.get('cover_image'),
-                keyword=data_item.get('keyword')
-            )
-            db.session.add(collect_item)
-            saved_count += 1
+            print(f"Processing item: {data_item.get('title')}, URL: {data_item.get('url')}")
+            
+            # 检查是否已存在（通过URL）
+            existing = CollectData.query.filter_by(url=data_item.get('url')).first()
+            if existing:
+                # 更新现有记录
+                existing.title = data_item.get('title', existing.title)
+                existing.abstract = data_item.get('abstract', existing.abstract)
+                existing.source = data_item.get('source', existing.source)
+                existing.keyword = data_item.get('keyword', existing.keyword)
+                existing.cover_image = data_item.get('cover_image', existing.cover_image)
+                update_count += 1
+                print(f"Updated existing record: {existing.title}")
+            else:
+                # 创建新记录
+                collect_item = CollectData(
+                    title=data_item.get('title'),
+                    url=data_item.get('url'),
+                    abstract=data_item.get('abstract'),
+                    source=data_item.get('source'),
+                    timestamp=datetime.strptime(data_item.get('timestamp'), '%Y-%m-%d %H:%M:%S') if data_item.get('timestamp') else datetime.utcnow(),
+                    cover_image=data_item.get('cover_image'),
+                    keyword=data_item.get('keyword'),
+                    type='未知类型',
+                    status='completed'
+                )
+                db.session.add(collect_item)
+                new_count += 1
+                print(f"Created new record: {collect_item.title}")
         
         db.session.commit()
-        return jsonify({'status': 'success', 'message': f'已保存 {saved_count} 条数据到数据库'})
+        print(f"Save completed: new={new_count}, update={update_count}")
+        return jsonify({
+            'status': 'success', 
+            'message': f'新增 {new_count} 条, 更新 {update_count} 条',
+            'new_count': new_count,
+            'update_count': update_count,
+            'saved_ids': selected_ids
+        })
     except Exception as e:
         db.session.rollback()
+        print(f"Save failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'status': 'error', 'message': f'保存失败: {str(e)}'})
 
 @crawler_bp.route('/collect/status')

@@ -188,3 +188,58 @@ def batch_ai_collect_data():
         return jsonify({'status': 'success', 'message': '批量AI深度采集功能开发中'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'批量AI深度采集失败: {str(e)}'})
+
+@main.route('/save-collected-data', methods=['POST'])
+@login_required
+def save_collected_data():
+    # 保存采集数据
+    data = request.json.get('data', [])
+    if not data:
+        return jsonify({'status': 'error', 'message': '无数据可保存'})
+    
+    new_count = 0
+    update_count = 0
+    saved_ids = []
+    
+    try:
+        for item in data:
+            # 检查是否已存在（通过URL）
+            existing = CollectData.query.filter_by(url=item['url']).first()
+            if existing:
+                # 更新现有记录
+                existing.title = item.get('title', existing.title)
+                existing.abstract = item.get('abstract', existing.abstract)
+                existing.source = item.get('source', existing.source)
+                existing.keyword = item.get('keyword', existing.keyword)
+                existing.type = item.get('type', existing.type)
+                existing.status = item.get('status', existing.status)
+                existing.cover_image = item.get('cover_image', existing.cover_image)
+                update_count += 1
+            else:
+                # 创建新记录
+                new_data = CollectData(
+                    title=item.get('title', ''),
+                    url=item.get('url', ''),
+                    abstract=item.get('abstract', ''),
+                    source=item.get('source', ''),
+                    keyword=item.get('keyword', ''),
+                    type=item.get('type', '未知类型'),
+                    status=item.get('status', 'completed'),
+                    cover_image=item.get('cover_image', ''),
+                    crawler_id=item.get('crawler_id', None)
+                )
+                db.session.add(new_data)
+                new_count += 1
+            saved_ids.append(item.get('id'))
+        
+        db.session.commit()
+        return jsonify({
+            'status': 'success', 
+            'message': f'新增 {new_count} 条, 更新 {update_count} 条',
+            'new_count': new_count,
+            'update_count': update_count,
+            'saved_ids': saved_ids
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': f'保存数据失败: {str(e)}'})

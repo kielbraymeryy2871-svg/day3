@@ -33,7 +33,65 @@
     }
 </style>
 
-<div class="bg-neutral-800 rounded-xl shadow-card p-6 md:p-8" id="collection-management">
+<div class="flex h-full">
+    <!-- 左侧导航面板 -->
+    <aside class="bg-dark-light border-r border-dark-medium w-64 flex-shrink-0 hidden lg:block transition-all duration-300 transform z-20 overflow-y-auto scrollbar-hide h-[calc(100%-64px)]">
+        <nav class="py-4 h-full flex flex-col">
+            <div class="px-4 mb-6">
+                <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 px-4">主菜单</p>
+                <a href="{{ url_for('main.dashboard') }}" class="sidebar-item">
+                    <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                    <span>后台主页</span>
+                </a>
+                <a href="{{ url_for('crawler.collect_page') }}" class="sidebar-item active">
+                    <i class="fas fa-database w-5 text-center"></i>
+                    <span>采集管理</span>
+                </a>
+                <a href="{{ url_for('crawler.list_crawlers') }}" class="sidebar-item">
+                    <i class="fas fa-spider w-5 text-center"></i>
+                    <span>爬虫管理</span>
+                </a>
+                <a href="{{ url_for('main.data_management') }}" class="sidebar-item">
+                    <i class="fas fa-table w-5 text-center"></i>
+                    <span>数据管理</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-search-plus w-5 text-center"></i>
+                    <span>深采管理</span>
+                </a>
+            </div>
+            <div class="px-4 mb-6">
+                <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4">AI功能</p>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-cogs w-5 text-center"></i>
+                    <span>AI模型管理</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-file-alt w-5 text-center"></i>
+                    <span>AI分析与报告</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-chart-line w-5 text-center"></i>
+                    <span>AI数智大屏</span>
+                </a>
+            </div>
+            <div class="px-4 mb-6 mt-auto">
+                <p class="text-xs uppercase text-gray-custom tracking-wider mb-3 mt-8 px-4">系统</p>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-cog w-5 text-center"></i>
+                    <span>系统设置</span>
+                </a>
+                <a href="#" class="sidebar-item">
+                    <i class="fas fa-user-circle w-5 text-center"></i>
+                    <span>用户中心</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 右侧内容区域 -->
+    <div class="flex-1 overflow-auto p-6">
+        <div id="collection-management">
     <!-- 页面标题 -->
     <div class="mb-8">
         <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-white mb-2">
@@ -488,6 +546,7 @@
         // 添加数据项
         data.forEach(item => {
             const card = document.createElement('div');
+            card.id = `collect-item-${item.id}`;
             card.className = 'bg-neutral-700 rounded-lg overflow-hidden shadow-card card-hover';
             
             // 设置封面图片
@@ -574,19 +633,34 @@
         saveButton.disabled = true;
         
         // 发送请求保存数据
+        const formData = new URLSearchParams();
+        selectedIds.forEach(id => {
+            formData.append('selected_ids', id);
+        });
         fetch('/crawler/collect/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: new URLSearchParams({
-                'selected_ids': selectedIds
-            })
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 showSuccessModal(data.message || '已成功保存选中的数据到数据库');
+                
+                // 从橱窗列表中移除已保存的数据
+                if (data.saved_ids && data.saved_ids.length > 0) {
+                    data.saved_ids.forEach(id => {
+                        const element = document.getElementById(`collect-item-${id}`);
+                        if (element) {
+                            element.remove();
+                        }
+                    });
+                    
+                    // 重新计算并更新选中数量
+                    updateSelectedCount();
+                }
             } else {
                 alert(data.message || '保存失败');
             }

@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         后台主页
                     </span>
                 </a>
-                <a href='{{ url_for("main.dashboard") }}#collection-management' class='sidebar-item'>
+                <a href='{{ url_for("crawler.collect_page") }}' class='sidebar-item'>
                     <i class='fas fa-database w-5 text-center'></i>
                     <span>
                         采集管理
@@ -1321,6 +1321,20 @@ function initCollectionManagement() {
         .then(data => {
             if (data.status === 'success') {
                 showSuccessModal(data.message || '已成功保存选中的数据到数据库');
+                
+                // 从橱窗列表中移除已保存的数据
+                if (data.saved_ids && data.saved_ids.length > 0) {
+                    data.saved_ids.forEach(id => {
+                        const element = document.getElementById(`collect-item-${id}`);
+                        if (element) {
+                            element.remove();
+                        }
+                    });
+                    
+                    // 重新计算并更新选中数量
+                    selectedItems.clear();
+                    updateSelectedCount();
+                }
             } else {
                 alert(data.message || '保存失败');
             }
